@@ -1,10 +1,9 @@
-from flask import Flask, request, render_template, redirect, url_for, flash, session
+from flask import Flask, request, render_template, redirect, url_for, flash, session, send_from_directory
 from PIL import Image, ImageDraw
 import hashlib
 import numpy as np
 from scipy.ndimage import label, find_objects
 import os
-import io
 import pyheif
 
 app = Flask(__name__)
@@ -58,6 +57,11 @@ def draw_cluster_boxes(img, diff, threshold):
             (min(x_stop + padding, img.width), min(y_stop + padding, img.height))
         ]
         draw.rectangle(box, outline=(255, 105, 180), width=3)
+
+# New route to serve uploaded images
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(UPLOAD_FOLDER, filename)
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
