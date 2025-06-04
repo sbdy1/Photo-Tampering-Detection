@@ -1,140 +1,259 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Forgery Detector</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            margin: 2em;
-            background-color: #f4f4f4;
-        }
-        h2 {
-            margin-top: 1.5em;
-        }
-        .preview-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1em;
-            margin-top: 1em;
-        }
-        .preview-container img {
-            max-height: 300px;
-            border: 2px solid #ccc;
-            border-radius: 8px;
-            background: white;
-            padding: 4px;
-        }
-        button {
-            margin-top: 1em;
-            padding: 0.5em 1em;
-            font-size: 1em;
-            border-radius: 6px;
-            border: none;
-            background-color: #0077cc;
-            color: white;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #005fa3;
-        }
-        .section {
-            margin-bottom: 2em;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <title>Simple Tamper Detector</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px);
+      border-radius: 16px;
+      padding: 30px;
+      width: 90%;
+      max-width: 900px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    }
+
+    h1, h2 {
+      text-align: center;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .upload-zone {
+      border: 2px dashed #ccc;
+      padding: 30px;
+      border-radius: 12px;
+      background-color: rgba(255, 255, 255, 0.05);
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.3s, background 0.3s;
+    }
+
+    .upload-zone:hover,
+    .upload-zone.dragover {
+      border-color: #00ff9d;
+      background-color: rgba(0, 255, 157, 0.1);
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .preview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 10px;
+      justify-content: center;
+    }
+
+    .preview img {
+      max-width: 300px;
+      max-height: 300px;
+      border-radius: 10px;
+      border: 2px solid #fff;
+      object-fit: contain;
+    }
+
+    button {
+      padding: 12px 20px;
+      background: #00ff9d;
+      border: none;
+      color: black;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+      width: fit-content;
+      align-self: center;
+      margin-top: 5px;
+    }
+
+    button:hover {
+      background: #00c47c;
+    }
+
+    .buttons-row {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 5px;
+      flex-wrap: wrap;
+    }
+
+    .status {
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .result-images {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .result-images img {
+      max-width: 100%;
+      border-radius: 8px;
+      margin-top: 10px;
+      border: 2px solid white;
+    }
+
+    .result-images .multiple-img {
+      max-width: 300px;
+      margin: 10px auto;
+      display: inline-block;
+    }
+  </style>
 </head>
 <body>
 
-    <h1>Forgery Detector</h1>
+<div class="container">
+  <h1>Simple Tamper Detector</h1>
 
-    <div class="section">
-        <h2>1. Upload Original Image</h2>
-        <input type="file" id="originalInput" accept="image/*">
-        <div id="originalPreview" class="preview-container"></div>
+  <h2>Step 1: Upload Original Image & Save Key</h2>
+  <form method="POST" enctype="multipart/form-data" action="/upload_original" id="original-form">
+    <label class="upload-zone" id="original-zone">
+      Click or drag the <strong>original image</strong> here
+      <input type="file" name="original" id="original-input" accept="image/*" required>
+    </label>
+    <div class="preview" id="original-preview"></div>
+    <div class="buttons-row">
+      <button type="submit">Upload Original</button>
+      <button type="button" id="original-reset">Reset</button>
     </div>
+  </form>
 
-    <div class="section">
-        <h2>2. Upload Suspect Images</h2>
-        <input type="file" id="suspectsInput" multiple accept="image/*">
-        <button onclick="uploadSuspects()">Upload Suspects</button>
-        <div id="suspectStatus"></div>
-        <div id="processedPreview" class="preview-container"></div>
+  {% if original_img %}
+  <div class="result-images">
+    <h3>Original Image:</h3>
+    <img src="{{ url_for('static', filename='uploads/' + original_img) }}" alt="Original Image" />
+  </div>
+  {% endif %}
+
+  <h2>Step 2: Upload Suspect Images to Compare</h2>
+  <form method="POST" enctype="multipart/form-data" action="/upload_suspects" id="suspect-form">
+    <label class="upload-zone" id="suspect-zone">
+      Click or drag <strong>up to 3 suspect images</strong> here
+      <input type="file" name="suspects" id="suspect-input" multiple accept="image/*" required>
+    </label>
+    <div class="preview" id="suspect-preview"></div>
+    <div class="buttons-row">
+      <button type="submit">Compare Image(s)</button>
+      <button type="button" id="suspect-reset">Reset</button>
     </div>
+  </form>
 
-    <div class="section">
-        <button onclick="clearAll()">Clear Everything</button>
-    </div>
+  {% if processed_imgs %}
+  <div class="result-images">
+    <h3>Processed Images with Tampering Highlighted:</h3>
+    {% for img in processed_imgs %}
+    <img src="{{ url_for('static', filename='uploads/' + img) }}" alt="Processed Image" class="multiple-img" />
+    {% endfor %}
+  </div>
+  {% endif %}
 
-    <script>
-        const originalInput = document.getElementById('originalInput');
-        const suspectsInput = document.getElementById('suspectsInput');
-        const originalPreview = document.getElementById('originalPreview');
-        const processedPreview = document.getElementById('processedPreview');
-        const suspectStatus = document.getElementById('suspectStatus');
+  {% with messages = get_flashed_messages() %}
+  {% if messages %}
+  <div class="status">
+    {% for message in messages %}
+    <p>{{ message }}</p>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endwith %}
+</div>
 
-        originalInput.addEventListener('change', async () => {
-            const file = originalInput.files[0];
-            if (!file) return;
+<script>
+  function setupPreview(inputId, previewId, maxFiles = 1) {
+    const input = document.getElementById(inputId);
+    const preview = document.getElementById(previewId);
 
-            const formData = new FormData();
-            formData.append("original", file);
+    input.addEventListener('change', () => {
+      preview.innerHTML = '';
+      const files = input.files;
 
-            originalPreview.innerHTML = "Uploading...";
-            const res = await fetch("/upload_original", {
-                method: "POST",
-                body: formData,
-            });
-            const data = await res.json();
+      const count = Math.min(files.length, maxFiles);
+      for (let i = 0; i < count; i++) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const img = document.createElement('img');
+          img.src = e.target.result;
+          preview.appendChild(img);
+        };
+        reader.readAsDataURL(files[i]);
+      }
+    });
+  }
 
-            if (data.filename) {
-                originalPreview.innerHTML = `<img src="/static/uploads/${data.filename}" alt="Original">`;
-            } else {
-                originalPreview.innerHTML = `<p style="color:red;">${data.error || "Upload failed."}</p>`;
-            }
-        });
+  function setupDragDrop(zoneId, inputId) {
+    const zone = document.getElementById(zoneId);
+    const input = document.getElementById(inputId);
 
-        async function uploadSuspects() {
-            const files = suspectsInput.files;
-            if (!files.length) {
-                suspectStatus.innerText = "Please select at least one suspect image.";
-                return;
-            }
+    zone.addEventListener('dragover', e => {
+      e.preventDefault();
+      zone.classList.add('dragover');
+    });
 
-            const formData = new FormData();
-            for (const file of files) {
-                formData.append("suspects", file);
-            }
+    zone.addEventListener('dragleave', () => {
+      zone.classList.remove('dragover');
+    });
 
-            suspectStatus.innerText = "Processing...";
-            processedPreview.innerHTML = "";
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.classList.remove('dragover');
 
-            const res = await fetch("/upload_suspects", {
-                method: "POST",
-                body: formData,
-            });
+      const files = e.dataTransfer.files;
+      const dt = new DataTransfer();
 
-            const data = await res.json();
-            if (data.processed && data.processed.length > 0) {
-                suspectStatus.innerText = "Forgery analysis complete!";
-                data.processed.forEach(filename => {
-                    const img = document.createElement("img");
-                    img.src = `/static/uploads/${filename}`;
-                    processedPreview.appendChild(img);
-                });
-            } else {
-                suspectStatus.innerHTML = `<p style="color:red;">${data.error || "No forgeries detected or upload failed."}</p>`;
-            }
-        }
+      const max = inputId === 'suspect-input' ? 3 : 1;
+      const validCount = Math.min(files.length, max);
 
-        async function clearAll() {
-            await fetch("/clear", { method: "POST" });
-            originalInput.value = "";
-            suspectsInput.value = "";
-            originalPreview.innerHTML = "";
-            processedPreview.innerHTML = "";
-            suspectStatus.innerText = "";
-        }
-    </script>
+      for (let i = 0; i < validCount; i++) {
+        dt.items.add(files[i]);
+      }
+
+      input.files = dt.files;
+      input.dispatchEvent(new Event('change'));
+    });
+  }
+
+  setupPreview('original-input', 'original-preview', 1);
+  setupPreview('suspect-input', 'suspect-preview', 3);
+  setupDragDrop('original-zone', 'original-input');
+  setupDragDrop('suspect-zone', 'suspect-input');
+
+  document.getElementById('original-reset').addEventListener('click', () => {
+    const input = document.getElementById('original-input');
+    const preview = document.getElementById('original-preview');
+    input.value = '';
+    preview.innerHTML = '';
+  });
+
+  document.getElementById('suspect-reset').addEventListener('click', () => {
+    const input = document.getElementById('suspect-input');
+    const preview = document.getElementById('suspect-preview');
+    input.value = '';
+    preview.innerHTML = '';
+  });
+</script>
 
 </body>
 </html>
