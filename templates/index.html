@@ -117,7 +117,7 @@
     <h1>Simple Tamper Detector</h1>
 
     <h2>Step 1: Upload Original Image & Save Key</h2>
-    <form method="POST" enctype="multipart/form-data" action="/upload_original">
+    <form method="POST" enctype="multipart/form-data">
         <label class="upload-zone" id="original-zone">
             Click or drag the <strong>original image</strong> here
             <input type="file" name="original" id="original-input" accept="image/*" required>
@@ -134,7 +134,7 @@
     {% endif %}
 
     <h2>Step 2: Upload Suspect Images to Compare</h2>
-    <form method="POST" enctype="multipart/form-data" action="/upload_suspects">
+    <form method="POST" enctype="multipart/form-data">
         <label class="upload-zone" id="suspect-zone">
             Click or drag <strong>up to 3 suspect images</strong> here
             <input type="file" name="suspects" id="suspect-input" multiple accept="image/*" required>
