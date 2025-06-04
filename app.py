@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, redirect, url_for, flash, session
+from flask import Flask, request, render_template, redirect, url_for, flash, session, jsonify
 from werkzeug.utils import secure_filename
 from PIL import Image, ImageDraw
 import hashlib
@@ -6,20 +6,26 @@ import numpy as np
 from scipy.ndimage import label, find_objects
 import os
 import pyheif
+import io
 
 app = Flask(__name__)
 app.secret_key = 'replace_with_your_secret_key'
 
 UPLOAD_FOLDER = 'static/uploads'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'heic'}
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 60 * 1024 * 1024  # 60MB
 
+
 # ---------- Utility Functions ----------
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def open_image(file):
     filename = file.filename.lower()
-    if filename.endswith('.heic') or filename.endswith('.heif'):
+    if filename.endswith(('.heic', '.heif')):
         heif_file = pyheif.read(file.stream.read())
         image = Image.frombytes(
             heif_file.mode,
@@ -40,6 +46,9 @@ def resize_image(image, max_size=1024):
         new_size = (int(image.width * ratio), int(image.height * ratio))
         return image.resize(new_size, Image.LANCZOS)
     return image
+
+def compress_and_save(image, path, quality=85):
+    image.save(path, format="JPEG", quality=quality, optimize=True)
 
 def get_signature_position(img_size, key):
     width, height = img_size
@@ -70,99 +79,78 @@ def draw_cluster_boxes(img, diff, threshold):
         ]
         draw.rectangle(box, outline=(255, 105, 180), width=3)
 
-# ---------- Flask Route ----------
+# ---------- Routes ----------
 
 @app.route("/", methods=["GET"])
 def index():
-    return render_template(
-        "index.html",
-        original_img=session.get("original_filename"),
-        processed_imgs=session.get("processed_filenames", [])
-    )
+    return render_template("index.html")
 
 @app.route("/upload_original", methods=["POST"])
 def upload_original():
-    if "original" not in request.files:
-        flash("No original image file part.")
-        return redirect(url_for("index"))
+    file = request.files.get("original")
+    if not file or file.filename == "" or not allowed_file(file.filename):
+        return jsonify({"error": "Invalid or missing original image"}), 400
 
-    file = request.files["original"]
-    if file.filename == "":
-        flash("No selected file for original image")
-        return redirect(url_for("index"))
-
-    safe_name = secure_filename(os.path.splitext(file.filename)[0])
-    original_filename = f"original_{safe_name}.jpg"
-    original_path = os.path.join(UPLOAD_FOLDER, original_filename)
-
+    key = secure_filename(os.path.splitext(file.filename)[0])
     original_img = resize_image(open_image(file))
-    draw_green_dot(original_img, safe_name)
-    original_img.save(original_path, format="JPEG")
+    draw_green_dot(original_img, key)
 
-    session["original_filename"] = original_filename
-    session["key"] = safe_name
+    filename = f"original_{key}.jpg"
+    path = os.path.join(UPLOAD_FOLDER, filename)
+    compress_and_save(original_img, path)
+
+    session["original_filename"] = filename
+    session["key"] = key
     session["processed_filenames"] = []
 
-    flash("Original image uploaded and green signature added.")
-    return redirect(url_for("index"))
+    return jsonify({"message": "Original uploaded", "filename": filename})
 
 @app.route("/upload_suspects", methods=["POST"])
 def upload_suspects():
-    if "suspects" not in request.files:
-        flash("No suspect images file part.")
-        return redirect(url_for("index"))
-
-    if session.get("original_filename") is None or session.get("key") is None:
-        flash("Please upload the original image first.")
-        return redirect(url_for("index"))
-
     files = request.files.getlist("suspects")
-    if not files or all(f.filename == "" for f in files):
-        flash("No selected files for suspect images")
-        return redirect(url_for("index"))
+    if not files:
+        return jsonify({"error": "No suspect images uploaded"}), 400
 
-    original_path = os.path.join(UPLOAD_FOLDER, session["original_filename"])
-    if not os.path.exists(original_path):
-        flash("Original image file not found. Please re-upload.")
-        return redirect(url_for("index"))
+    key = session.get("key")
+    original_filename = session.get("original_filename")
+    if not key or not original_filename:
+        return jsonify({"error": "Original image missing"}), 400
 
+    original_path = os.path.join(UPLOAD_FOLDER, original_filename)
     original_img = Image.open(original_path).convert("RGB")
     processed_filenames = []
 
     for file in files:
+        if not allowed_file(file.filename):
+            continue
         safe_name = secure_filename(os.path.splitext(file.filename)[0])
         suspect_img = resize_image(open_image(file))
 
         if suspect_img.size != original_img.size:
             suspect_img = suspect_img.resize(original_img.size)
 
-        orig_np = np.array(original_img)
-        suspect_np = np.array(suspect_img)
-        diff = np.abs(orig_np.astype(int) - suspect_np.astype(int)).sum(axis=2)
-
-        threshold = 50
-        if np.max(diff) <= threshold:
-            flash(f"No tampering detected in image: {file.filename}")
+        diff = np.abs(np.array(original_img).astype(int) - np.array(suspect_img).astype(int)).sum(axis=2)
+        if np.max(diff) <= 50:
             continue
 
         suspect_marked = suspect_img.copy()
-        draw_cluster_boxes(suspect_marked, diff, threshold)
-        draw_green_dot(suspect_marked, session["key"])
+        draw_cluster_boxes(suspect_marked, diff, 50)
+        draw_green_dot(suspect_marked, key)
 
-        processed_filename = f"processed_{safe_name}.jpg"
-        processed_path = os.path.join(UPLOAD_FOLDER, processed_filename)
-        suspect_marked.save(processed_path, format="JPEG")
+        filename = f"processed_{safe_name}.jpg"
+        path = os.path.join(UPLOAD_FOLDER, filename)
+        compress_and_save(suspect_marked, path)
 
-        processed_filenames.append(processed_filename)
+        processed_filenames.append(filename)
 
-    if processed_filenames:
-        session["processed_filenames"] = processed_filenames
-        flash("Tampering detected! See results below.")
-    else:
-        session["processed_filenames"] = []
-        flash("No tampering detected in any suspect images.")
+    session["processed_filenames"] = processed_filenames
 
-    return redirect(url_for("index"))
+    return jsonify({"message": "Processing complete", "processed": processed_filenames})
+
+@app.route("/clear", methods=["POST"])
+def clear():
+    session.clear()
+    return jsonify({"message": "Session cleared"})
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
