@@ -1,5 +1,6 @@
 from flask import Flask, request, render_template, redirect, url_for, send_file, flash
 from PIL import Image, ImageDraw
+import pillow_heif
 import hashlib
 import numpy as np
 from scipy.ndimage import label, find_objects
@@ -8,6 +9,9 @@ import io
 
 app = Flask(__name__)
 app.secret_key = 'replace_with_your_secret_key'
+
+# Register HEIC support with PIL
+pillow_heif.register_heif_opener()
 
 UPLOAD_FOLDER = 'uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -71,6 +75,7 @@ def index():
             if file.filename == '':
                 flash('No selected file for suspect image')
                 return redirect(request.url)
+            # Open suspect image with PIL (now supports HEIC)
             suspect_img = Image.open(file.stream).convert('RGB')
             original_img = Image.open(original_path).convert('RGB')
 
