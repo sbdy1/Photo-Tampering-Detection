@@ -13,7 +13,7 @@ app.secret_key = 'replace_with_your_secret_key'
 UPLOAD_FOLDER = 'static/uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024  # Limit uploads to 10MB
+app.config['MAX_CONTENT_LENGTH'] = 60 * 1024 * 1024  # Limit uploads to 10MB
 
 def open_image(file):
     filename = file.filename.lower()
