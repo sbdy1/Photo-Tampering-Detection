@@ -8,7 +8,7 @@ import os
 import pyheif
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev_secret_key")
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", "fallback_key_for_local_dev")
 
 UPLOAD_FOLDER = 'static/uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'heic'}
