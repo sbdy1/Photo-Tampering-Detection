@@ -8,11 +8,13 @@ import os
 import pyheif
 
 app = Flask(__name__)
-app.secret_key = 'replace_with_your_secret_key'
+app.secret_key = os.environ.get("SECRET_KEY", "hardcoded-debug-key")
 
 UPLOAD_FOLDER = 'static/uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'heic'}
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 60 * 1024 * 1024  # 60MB
 
