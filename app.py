@@ -112,8 +112,9 @@ def upload_original():
     session["processed_filenames"] = []
 
     flash("Original image uploaded successfully.")
+    print("Session data:", dict(session))
     return redirect(url_for("index"))
-print("Session data:", dict(session))
+
 
 @app.route("/upload_suspects", methods=["POST"])
 def upload_suspects():
@@ -158,8 +159,9 @@ def upload_suspects():
     session["processed_filenames"] = processed_filenames
 
     flash(f"Processed {len(processed_filenames)} suspect images.")
+    print("Session data:", dict(session))
     return redirect(url_for("index"))
-print("Session data:", dict(session))
+
 
 @app.route("/clear", methods=["POST"])
 def clear():
