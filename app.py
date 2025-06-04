@@ -6,14 +6,21 @@ import numpy as np
 from scipy.ndimage import label, find_objects
 import os
 import pyheif
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 app = Flask(__name__)
+
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1)
+
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev-secret")
 
 UPLOAD_FOLDER = 'static/uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'heic'}
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
+app.config.update(
+    SESSION_COOKIE_SECURE=True,       # Ensures cookie only sent over HTTPS
+    SESSION_COOKIE_SAMESITE="Lax",    # Safe for most login/session flows
+)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 60 * 1024 * 1024  # 60MB
 
