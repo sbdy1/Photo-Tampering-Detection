@@ -36,7 +36,7 @@ def resize_image(image, max_size=1024):
     if max(image.size) > max_size:
         ratio = max_size / max(image.size)
         new_size = (int(image.width * ratio), int(image.height * ratio))
-        return image.resize(new_size, Image.ANTIALIAS)
+        return image.resize(new_size, Image.LANCZOS)
     return image
 
 def get_signature_position(img_size, key):
