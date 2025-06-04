@@ -141,12 +141,13 @@
     </div>
   </form>
 
-  {% if original_img %}
+  <!-- Example placeholders for server-rendered images -->
+  <!-- 
   <div class="result-images">
     <h3>Original Image:</h3>
-    <img src="{{ url_for('static', filename='uploads/' + original_img) }}" alt="Original Image" />
+    <img src="path_to_original_image.jpg" alt="Original Image" />
   </div>
-  {% endif %}
+  -->
 
   <h2>Step 2: Upload Suspect Images to Compare</h2>
   <form method="POST" enctype="multipart/form-data" action="/upload_suspects" id="suspect-form">
@@ -161,27 +162,26 @@
     </div>
   </form>
 
-  {% if processed_imgs %}
+  <!-- Example placeholders for processed images -->
+  <!--
   <div class="result-images">
     <h3>Processed Images with Tampering Highlighted:</h3>
-    {% for img in processed_imgs %}
-    <img src="{{ url_for('static', filename='uploads/' + img) }}" alt="Processed Image" class="multiple-img" />
-    {% endfor %}
+    <img src="path_to_processed_img1.jpg" alt="Processed Image" class="multiple-img" />
+    <img src="path_to_processed_img2.jpg" alt="Processed Image" class="multiple-img" />
   </div>
-  {% endif %}
+  -->
 
-  {% with messages = get_flashed_messages() %}
-  {% if messages %}
+  <!-- Example flash/status messages -->
+  <!--
   <div class="status">
-    {% for message in messages %}
-    <p>{{ message }}</p>
-    {% endfor %}
+    <p>Upload successful!</p>
   </div>
-  {% endif %}
-  {% endwith %}
+  -->
+
 </div>
 
 <script>
+  // Preview setup function for both original and suspect inputs
   function setupPreview(inputId, previewId, maxFiles = 1) {
     const input = document.getElementById(inputId);
     const preview = document.getElementById(previewId);
@@ -203,6 +203,7 @@
     });
   }
 
+  // Drag and drop support
   function setupDragDrop(zoneId, inputId) {
     const zone = document.getElementById(zoneId);
     const input = document.getElementById(inputId);
@@ -235,11 +236,7 @@
     });
   }
 
-  setupPreview('original-input', 'original-preview', 1);
-  setupPreview('suspect-input', 'suspect-preview', 3);
-  setupDragDrop('original-zone', 'original-input');
-  setupDragDrop('suspect-zone', 'suspect-input');
-
+  // Reset buttons clear the file input and preview
   document.getElementById('original-reset').addEventListener('click', () => {
     const input = document.getElementById('original-input');
     const preview = document.getElementById('original-preview');
@@ -253,6 +250,12 @@
     input.value = '';
     preview.innerHTML = '';
   });
+
+  // Initialize previews and drag & drop for original and suspect images
+  setupPreview('original-input', 'original-preview', 1);
+  setupPreview('suspect-input', 'suspect-preview', 3);
+  setupDragDrop('original-zone', 'original-input');
+  setupDragDrop('suspect-zone', 'suspect-input');
 </script>
 
 </body>
