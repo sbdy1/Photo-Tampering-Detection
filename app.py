@@ -87,6 +87,7 @@ def draw_cluster_boxes(img, diff, threshold):
 def index():
     original_filename = session.get("original_filename")
     processed_filenames = session.get("processed_filenames", [])
+    print("Session original_filename:", original_filename)  # check server console
     return render_template("index.html",
                            original_filename=original_filename,
                            processed_filenames=processed_filenames)
