@@ -1,23 +1,34 @@
-from flask import Flask, request, render_template, redirect, url_for, send_file, flash
+from flask import Flask, request, render_template, redirect, url_for, flash, session
 from PIL import Image, ImageDraw
-import pillow_heif
 import hashlib
 import numpy as np
 from scipy.ndimage import label, find_objects
 import os
 import io
+import pyheif
 
 app = Flask(__name__)
 app.secret_key = 'replace_with_your_secret_key'
 
-# Register HEIC support with PIL
-pillow_heif.register_heif_opener()
-
-UPLOAD_FOLDER = 'uploads'
+UPLOAD_FOLDER = 'static/uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-original_path = None
-key = None
+def open_image(file):
+    filename = file.filename.lower()
+    if filename.endswith('.heic') or filename.endswith('.heif'):
+        heif_file = pyheif.read(file.stream.read())
+        image = Image.frombytes(
+            heif_file.mode, 
+            heif_file.size, 
+            heif_file.data, 
+            "raw", 
+            heif_file.mode, 
+            heif_file.stride
+        )
+        return image.convert('RGB')
+    else:
+        file.stream.seek(0)
+        return Image.open(file.stream).convert('RGB')
 
 def get_signature_position(img_size, key):
     width, height = img_size
@@ -50,34 +61,46 @@ def draw_cluster_boxes(img, diff, threshold):
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    global original_path, key
+    if 'original_filename' not in session:
+        session['original_filename'] = None
+    if 'processed_filename' not in session:
+        session['processed_filename'] = None
+    if 'key' not in session:
+        session['key'] = None
 
     if request.method == 'POST':
-        # Upload original image and save key
+        # Upload original image
         if 'original' in request.files:
             file = request.files['original']
             if file.filename == '':
                 flash('No selected file for original image')
                 return redirect(request.url)
-            filename = 'original_' + file.filename
+
+            original_img = open_image(file)
+            filename = 'original_' + file.filename.rsplit('.',1)[0] + '.jpg'
             original_path = os.path.join(UPLOAD_FOLDER, filename)
-            file.save(original_path)
-            key = file.filename  # key = filename
-            flash(f'Original image uploaded and key saved: {key}')
+            original_img.save(original_path, format='JPEG')
+
+            session['original_filename'] = filename
+            session['processed_filename'] = None  # reset processed
+            session['key'] = file.filename  # key is original filename
+
+            flash('Original image uploaded and key saved')
             return redirect(url_for('index'))
 
-        # Upload suspect image for comparison
+        # Upload suspect image
         if 'suspect' in request.files:
-            if original_path is None or key is None:
+            if session.get('original_filename') is None or session.get('key') is None:
                 flash('Please upload original image first')
                 return redirect(request.url)
+
             file = request.files['suspect']
             if file.filename == '':
                 flash('No selected file for suspect image')
                 return redirect(request.url)
-            # Open suspect image with PIL (now supports HEIC)
-            suspect_img = Image.open(file.stream).convert('RGB')
-            original_img = Image.open(original_path).convert('RGB')
+
+            suspect_img = open_image(file)
+            original_img = Image.open(os.path.join(UPLOAD_FOLDER, session['original_filename'])).convert('RGB')
 
             if suspect_img.size != original_img.size:
                 suspect_img = suspect_img.resize(original_img.size)
@@ -93,16 +116,23 @@ def index():
 
             suspect_marked = suspect_img.copy()
             draw_cluster_boxes(suspect_marked, diff, threshold)
-            draw_green_dot(suspect_marked, key)
+            draw_green_dot(suspect_marked, session['key'])
 
-            # Save output to in-memory file
-            img_io = io.BytesIO()
-            suspect_marked.save(img_io, 'JPEG')
-            img_io.seek(0)
-            return send_file(img_io, mimetype='image/jpeg')
+            processed_filename = 'processed_' + file.filename.rsplit('.',1)[0] + '.jpg'
+            processed_path = os.path.join(UPLOAD_FOLDER, processed_filename)
+            suspect_marked.save(processed_path, format='JPEG')
 
-    return render_template('index.html')
+            session['processed_filename'] = processed_filename
+
+            flash('Tampering detected! See result below.')
+            return redirect(url_for('index'))
+
+    return render_template(
+        'index.html',
+        original_img=session.get('original_filename'),
+        processed_img=session.get('processed_filename')
+    )
+
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=5000)
