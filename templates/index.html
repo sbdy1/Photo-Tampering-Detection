@@ -15,7 +15,7 @@
 
     {% if original_img %}
     <h3>Original Image:</h3>
-    <img src="{{ url_for('uploaded_file', filename=original_img) }}" alt="Original Image" style="max-width:300px;" />
+    <img src="{{ url_for('static', filename='uploads/' + original_img) }}" alt="Original Image" style="max-width:300px;" />
     {% endif %}
 
     <h2>Step 2: Upload Suspect Image to Compare</h2>
@@ -23,10 +23,10 @@
         <input type="file" name="suspect" accept="image/*" required />
         <button type="submit">Compare Image</button>
     </form>
-
+   
     {% if processed_img %}
-    <h3>Processed Image with Tampering Highlights:</h3>
-    <img src="{{ url_for('uploaded_file', filename=processed_img) }}" alt="Processed Image" style="max-width:300px;" />
+    <h3>Processed Image with Tampering Highlighted:</h3>
+    <img src="{{ url_for('static', filename='uploads/' + processed_img) }}" alt="Processed Image" style="max-width:300px;" />
     {% endif %}
 
     {% with messages = get_flashed_messages() %}
