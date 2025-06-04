@@ -94,6 +94,7 @@ def index():
 
 @app.route("/upload_original", methods=["POST"])
 def upload_original():
+    print("Session data:", dict(session))
     file = request.files.get("original")
     if not file or file.filename == "" or not allowed_file(file.filename):
         flash("Invalid or missing original image")
@@ -112,7 +113,6 @@ def upload_original():
     session["processed_filenames"] = []
 
     flash("Original image uploaded successfully.")
-    print("Session data:", dict(session))
     return redirect(url_for("index"))
 
 
