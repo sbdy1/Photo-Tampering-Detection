@@ -113,7 +113,7 @@ def upload_original():
 
     flash("Original image uploaded successfully.")
     return redirect(url_for("index"))
-
+print("Session data:", dict(session))
 
 @app.route("/upload_suspects", methods=["POST"])
 def upload_suspects():
@@ -159,7 +159,7 @@ def upload_suspects():
 
     flash(f"Processed {len(processed_filenames)} suspect images.")
     return redirect(url_for("index"))
-
+print("Session data:", dict(session))
 
 @app.route("/clear", methods=["POST"])
 def clear():
