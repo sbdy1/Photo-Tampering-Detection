@@ -33,7 +33,7 @@
     form {
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 15px;
       margin-top: 15px;
     }
 
@@ -65,9 +65,10 @@
       justify-content: center;
     }
 
+    /* Make original preview images same size as suspect preview images */
     .preview img {
-      max-width: 150px;
-      max-height: 150px;
+      max-width: 300px;    /* matched size */
+      max-height: 300px;   /* matched size */
       border-radius: 10px;
       border: 2px solid #fff;
       object-fit: contain;
@@ -82,10 +83,21 @@
       border-radius: 8px;
       cursor: pointer;
       transition: background 0.3s;
+      width: fit-content;
+      align-self: center;
+      margin-top: 5px;
     }
 
     button:hover {
       background: #00c47c;
+    }
+
+    .buttons-row {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 5px;
+      flex-wrap: wrap;
     }
 
     .status {
@@ -118,13 +130,16 @@
   <h1>Simple Tamper Detector</h1>
 
   <h2>Step 1: Upload Original Image & Save Key</h2>
-  <form method="POST" enctype="multipart/form-data" action="/upload_original">
+  <form method="POST" enctype="multipart/form-data" action="/upload_original" id="original-form">
     <label class="upload-zone" id="original-zone">
       Click or drag the <strong>original image</strong> here
       <input type="file" name="original" id="original-input" accept="image/*" required>
     </label>
     <div class="preview" id="original-preview"></div>
-    <button type="submit">Upload Original</button>
+    <div class="buttons-row">
+      <button type="submit">Upload Original</button>
+      <button type="button" id="original-reset">Reset</button>
+    </div>
   </form>
 
   {% if original_img %}
@@ -135,13 +150,16 @@
   {% endif %}
 
   <h2>Step 2: Upload Suspect Images to Compare</h2>
-  <form method="POST" enctype="multipart/form-data" action="/upload_suspects">
+  <form method="POST" enctype="multipart/form-data" action="/upload_suspects" id="suspect-form">
     <label class="upload-zone" id="suspect-zone">
       Click or drag <strong>up to 3 suspect images</strong> here
       <input type="file" name="suspects" id="suspect-input" multiple accept="image/*" required>
     </label>
     <div class="preview" id="suspect-preview"></div>
-    <button type="submit">Compare Image(s)</button>
+    <div class="buttons-row">
+      <button type="submit">Compare Image(s)</button>
+      <button type="button" id="suspect-reset">Reset</button>
+    </div>
   </form>
 
   {% if processed_imgs %}
@@ -173,6 +191,7 @@
       preview.innerHTML = '';
       const files = input.files;
 
+      // Limit number of files shown
       const count = Math.min(files.length, maxFiles);
       for (let i = 0; i < count; i++) {
         const reader = new FileReader();
@@ -219,10 +238,26 @@
     });
   }
 
+  // Setup previews and drag-drop zones
   setupPreview('original-input', 'original-preview', 1);
   setupPreview('suspect-input', 'suspect-preview', 3);
   setupDragDrop('original-zone', 'original-input');
   setupDragDrop('suspect-zone', 'suspect-input');
+
+  // Reset buttons logic
+  document.getElementById('original-reset').addEventListener('click', () => {
+    const input = document.getElementById('original-input');
+    const preview = document.getElementById('original-preview');
+    input.value = '';
+    preview.innerHTML = '';
+  });
+
+  document.getElementById('suspect-reset').addEventListener('click', () => {
+    const input = document.getElementById('suspect-input');
+    const preview = document.getElementById('suspect-preview');
+    input.value = '';
+    preview.innerHTML = '';
+  });
 </script>
 
 </body>
