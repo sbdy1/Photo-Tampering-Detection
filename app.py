@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, redirect, url_for, flash, session, jsonify
+from flask import Flask, request, render_template, redirect, url_for, flash, session
 from werkzeug.utils import secure_filename
 from PIL import Image, ImageDraw
 import hashlib
@@ -6,7 +6,6 @@ import numpy as np
 from scipy.ndimage import label, find_objects
 import os
 import pyheif
-import io
 
 app = Flask(__name__)
 app.secret_key = 'replace_with_your_secret_key'
@@ -79,17 +78,24 @@ def draw_cluster_boxes(img, diff, threshold):
         ]
         draw.rectangle(box, outline=(255, 105, 180), width=3)
 
+
 # ---------- Routes ----------
 
 @app.route("/", methods=["GET"])
 def index():
-    return render_template("index.html")
+    original_filename = session.get("original_filename")
+    processed_filenames = session.get("processed_filenames", [])
+    return render_template("index.html",
+                           original_filename=original_filename,
+                           processed_filenames=processed_filenames)
+
 
 @app.route("/upload_original", methods=["POST"])
 def upload_original():
     file = request.files.get("original")
     if not file or file.filename == "" or not allowed_file(file.filename):
-        return jsonify({"error": "Invalid or missing original image"}), 400
+        flash("Invalid or missing original image")
+        return redirect(url_for("index"))
 
     key = secure_filename(os.path.splitext(file.filename)[0])
     original_img = resize_image(open_image(file))
@@ -103,18 +109,22 @@ def upload_original():
     session["key"] = key
     session["processed_filenames"] = []
 
-    return jsonify({"message": "Original uploaded", "filename": filename})
+    flash("Original image uploaded successfully.")
+    return redirect(url_for("index"))
+
 
 @app.route("/upload_suspects", methods=["POST"])
 def upload_suspects():
     files = request.files.getlist("suspects")
     if not files:
-        return jsonify({"error": "No suspect images uploaded"}), 400
+        flash("No suspect images uploaded")
+        return redirect(url_for("index"))
 
     key = session.get("key")
     original_filename = session.get("original_filename")
     if not key or not original_filename:
-        return jsonify({"error": "Original image missing"}), 400
+        flash("Original image missing")
+        return redirect(url_for("index"))
 
     original_path = os.path.join(UPLOAD_FOLDER, original_filename)
     original_img = Image.open(original_path).convert("RGB")
@@ -145,12 +155,16 @@ def upload_suspects():
 
     session["processed_filenames"] = processed_filenames
 
-    return jsonify({"message": "Processing complete", "processed": processed_filenames})
+    flash(f"Processed {len(processed_filenames)} suspect images.")
+    return redirect(url_for("index"))
+
 
 @app.route("/clear", methods=["POST"])
 def clear():
     session.clear()
-    return jsonify({"message": "Session cleared"})
+    flash("Session cleared.")
+    return redirect(url_for("index"))
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
