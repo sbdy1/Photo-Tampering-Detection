@@ -13,8 +13,7 @@ app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev-secret")
 UPLOAD_FOLDER = 'static/uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'heic'}
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-app.config['SESSION_COOKIE_SECURE'] = True
-app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 60 * 1024 * 1024  # 60MB
 
