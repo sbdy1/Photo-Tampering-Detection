@@ -103,6 +103,12 @@
             margin-top: 10px;
             border: 2px solid white;
         }
+
+        .result-images .multiple-img {
+            max-width: 300px;
+            margin: 10px auto;
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
@@ -131,16 +137,18 @@
     <form method="POST" enctype="multipart/form-data" action="/upload_suspects">
         <label class="upload-zone" id="suspect-zone">
             Click or drag <strong>up to 3 suspect images</strong> here
-            <input type="file" name="suspect" id="suspect-input" multiple accept="image/*" required>
+            <input type="file" name="suspects" id="suspect-input" multiple accept="image/*" required>
         </label>
         <div class="preview" id="suspect-preview"></div>
         <button type="submit">Compare Image(s)</button>
     </form>
 
-    {% if processed_img %}
+    {% if processed_imgs %}
     <div class="result-images">
-        <h3>Processed Image with Tampering Highlighted:</h3>
-        <img src="{{ url_for('static', filename='uploads/' + processed_img) }}" alt="Processed Image" />
+        <h3>Processed Images with Tampering Highlighted:</h3>
+        {% for img in processed_imgs %}
+            <img src="{{ url_for('static', filename='uploads/' + img) }}" alt="Processed Image" class="multiple-img" />
+        {% endfor %}
     </div>
     {% endif %}
 
@@ -205,4 +213,3 @@
 
 </body>
 </html>
-
