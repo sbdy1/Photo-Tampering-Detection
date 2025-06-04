@@ -15,7 +15,7 @@
 
     {% if original_img %}
     <h3>Original Image:</h3>
-    <img src="{{ url_for('static', filename='uploads/' + original_img) }}" alt="Original Image" style="max-width:400px; max-height:400px;" />
+    <img src="{{ url_for('uploaded_file', filename=original_img) }}" alt="Original Image" style="max-width:300px;" />
     {% endif %}
 
     <h2>Step 2: Upload Suspect Image to Compare</h2>
@@ -25,19 +25,18 @@
     </form>
 
     {% if processed_img %}
-    <h3>Processed Suspect Image (with Tampering Highlights):</h3>
-    <img src="{{ url_for('static', filename='uploads/' + processed_img) }}" alt="Processed Image" style="max-width:400px; max-height:400px;" />
+    <h3>Processed Image with Tampering Highlights:</h3>
+    <img src="{{ url_for('uploaded_file', filename=processed_img) }}" alt="Processed Image" style="max-width:300px;" />
     {% endif %}
 
     {% with messages = get_flashed_messages() %}
       {% if messages %}
-        <ul style="color: red;">
+        <ul>
           {% for message in messages %}
             <li>{{ message }}</li>
           {% endfor %}
         </ul>
       {% endif %}
     {% endwith %}
-
 </body>
 </html>
