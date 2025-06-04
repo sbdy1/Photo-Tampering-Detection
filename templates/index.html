@@ -13,15 +13,25 @@
         <button type="submit">Upload Original</button>
     </form>
 
+    {% if original_img %}
+    <h3>Original Image:</h3>
+    <img src="{{ url_for('static', filename='uploads/' + original_img) }}" alt="Original Image" style="max-width:400px; max-height:400px;" />
+    {% endif %}
+
     <h2>Step 2: Upload Suspect Image to Compare</h2>
     <form method="POST" enctype="multipart/form-data">
         <input type="file" name="suspect" accept="image/*" required />
         <button type="submit">Compare Image</button>
     </form>
 
+    {% if processed_img %}
+    <h3>Processed Suspect Image (with Tampering Highlights):</h3>
+    <img src="{{ url_for('static', filename='uploads/' + processed_img) }}" alt="Processed Image" style="max-width:400px; max-height:400px;" />
+    {% endif %}
+
     {% with messages = get_flashed_messages() %}
       {% if messages %}
-        <ul>
+        <ul style="color: red;">
           {% for message in messages %}
             <li>{{ message }}</li>
           {% endfor %}
@@ -31,4 +41,3 @@
 
 </body>
 </html>
-
