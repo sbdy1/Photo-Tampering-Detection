@@ -1,9 +1,10 @@
-from flask import Flask, request, render_template, redirect, url_for, flash, session, send_from_directory
+from flask import Flask, request, render_template, redirect, url_for, flash, session
 from PIL import Image, ImageDraw
 import hashlib
 import numpy as np
 from scipy.ndimage import label, find_objects
 import os
+import io
 import pyheif
 
 app = Flask(__name__)
@@ -11,6 +12,8 @@ app.secret_key = 'replace_with_your_secret_key'
 
 UPLOAD_FOLDER = 'static/uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # Limit uploads to 10MB
 
 def open_image(file):
     filename = file.filename.lower()
@@ -28,6 +31,13 @@ def open_image(file):
     else:
         file.stream.seek(0)
         return Image.open(file.stream).convert('RGB')
+
+def resize_image(image, max_size=1024):
+    if max(image.size) > max_size:
+        ratio = max_size / max(image.size)
+        new_size = (int(image.width * ratio), int(image.height * ratio))
+        return image.resize(new_size, Image.ANTIALIAS)
+    return image
 
 def get_signature_position(img_size, key):
     width, height = img_size
@@ -58,11 +68,6 @@ def draw_cluster_boxes(img, diff, threshold):
         ]
         draw.rectangle(box, outline=(255, 105, 180), width=3)
 
-# New route to serve uploaded images
-@app.route('/uploads/<filename>')
-def uploaded_file(filename):
-    return send_from_directory(UPLOAD_FOLDER, filename)
-
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if 'original_filename' not in session:
@@ -80,7 +85,7 @@ def index():
                 flash('No selected file for original image')
                 return redirect(request.url)
 
-            original_img = open_image(file)
+            original_img = resize_image(open_image(file))
             filename = 'original_' + file.filename.rsplit('.',1)[0] + '.jpg'
             original_path = os.path.join(UPLOAD_FOLDER, filename)
             original_img.save(original_path, format='JPEG')
@@ -103,7 +108,7 @@ def index():
                 flash('No selected file for suspect image')
                 return redirect(request.url)
 
-            suspect_img = open_image(file)
+            suspect_img = resize_image(open_image(file))
             original_img = Image.open(os.path.join(UPLOAD_FOLDER, session['original_filename'])).convert('RGB')
 
             if suspect_img.size != original_img.size:
