@@ -20,4 +20,4 @@ COPY . .
 EXPOSE 5000
 
 # Run your Flask app
-CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:$PORT"]
+CMD ["gunicorn", "run:app", "--bind", "0.0.0.0:5000"]
