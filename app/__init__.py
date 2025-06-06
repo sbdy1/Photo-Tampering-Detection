@@ -4,7 +4,6 @@ from flask_login import LoginManager
 from flask_bcrypt import Bcrypt
 import os
 
-db = SQLAlchemy()
 bcrypt = Bcrypt()
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
@@ -17,15 +16,11 @@ def create_app():
 
     # Use DATABASE_URL if provided, otherwise fallback to config.py value
     database_url = os.environ.get("DATABASE_URL")
-    if database_url:
-        app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 
     app.config['SECRET_KEY'] = 'thisisasecretkey'
     app.config["UPLOAD_FOLDER"] = os.path.join(app.root_path, "static", "uploads")
     os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
     app.config['MAX_CONTENT_LENGTH'] = 60 * 1024 * 1024  # 60MB
-
-    print("FINAL SQLALCHEMY_DATABASE_URI:", app.config.get("SQLALCHEMY_DATABASE_URI"))
 
     db.init_app(app)
     bcrypt.init_app(app)
