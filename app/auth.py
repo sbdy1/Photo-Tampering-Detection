@@ -26,7 +26,6 @@ def signup():
             role = 'user'
 
         new_user = User(username=username, email=email, password_hash=hashed_pw, role=role)
-        admin_user = User(username="admin", email="admin@myapp.com", password_hash=..., role="admin")
 
         db.session.add(new_user)
         db.session.commit()
