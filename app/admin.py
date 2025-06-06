@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, current_app
 from flask_login import current_user, login_required, login_user
 from .models import User
-from app import db
+from . import db, bcrypt
 
 def create_admin_user():
     if not User.query.filter_by(username="admin").first():
