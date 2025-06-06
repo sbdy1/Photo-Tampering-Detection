@@ -1,12 +1,17 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, current_app
 from flask_login import current_user, login_required, login_user
 from .models import User
-from . import db, bcrypt
+from app import db, bcrypt
 
 def create_admin_user():
     if not User.query.filter_by(username="admin").first():
         hashed_pw = bcrypt.generate_password_hash("admin").decode("utf-8")
-        admin = User(username="admin", password=hashed_pw, is_admin=True)
+        admin = User(
+            username="admin",
+            email="admin@myapp.com",  
+            role="admin"              # use role, not is_admin
+        )
+        admin.set_password("admin")
         db.session.add(admin)
         db.session.commit()
 #def create_admin_user():
