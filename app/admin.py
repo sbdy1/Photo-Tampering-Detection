@@ -19,13 +19,13 @@ def create_admin_user():
         admin_user = User.query.filter_by(email='admin@myapp.com').first()
         if not admin_user:
             from werkzeug.security import generate_password_hash
-            new_admin = User(
+            admin = User(
                 username='admin',
                 email='admin@myapp.com',
                 password_hash=generate_password_hash('your_admin_password'),
                 role='admin'
             )
-            db.session.add(new_admin)
+            db.session.add(admin)
             db.session.commit()
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
