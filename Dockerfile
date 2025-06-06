@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Set work directory
-WORKDIR /
+WORKDIR /run
 
 # Copy requirements and install
 COPY requirements.txt .
