@@ -14,7 +14,7 @@ def create_app():
     app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev_default")
 
     app.config.from_object('config')
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL")
     app.config['SECRET_KEY'] = 'thisisasecretkey'
 
     app.config["UPLOAD_FOLDER"] = os.path.join(app.root_path, "static", "uploads")
