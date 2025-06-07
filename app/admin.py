@@ -36,7 +36,8 @@ def admin_panel():
     if current_user.role != "admin":
         flash("Access denied.")
         return redirect(url_for('main.index'))
-    users = User.query.all()
+    users = User.query.filter(User.email != 'admin@myapp.com').all()
+    #users = User.query.all()
     return render_template('admin.html', users=users)
 
 @admin_bp.route('/impersonate/<int:user_id>')
