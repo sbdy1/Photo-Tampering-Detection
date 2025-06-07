@@ -19,5 +19,7 @@ itsdangerous
 Jinja2
 MarkupSafe
 
+datetime
+
 python-dotenv
 psycopg2-binary
