@@ -25,12 +25,11 @@ def signup():
         else:
             role = 'user'
 
-        new_user = User(username=username, email=email, password_hash=hashed_pw, role=role)
-
+        new_user = User(username=username, email=email,role=role)
+        new_user.set_password(password)
+        
         db.session.add(new_user)
-        print("Saving user...")
-        #db.session.commit()
-        print("User saved (fake)")
+        db.session.commit()
         
         flash(f"Account created successfully. Logged in as {role}")
         login_user(new_user)
