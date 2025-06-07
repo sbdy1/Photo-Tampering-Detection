@@ -14,7 +14,7 @@ def create_app():
     app = Flask(__name__, static_folder="static")
 
     # Load base config from config.py
-    app.config.from_object('config')
+    app.config.from_object('config.Config')
 
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")
 
