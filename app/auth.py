@@ -12,6 +12,10 @@ def signup():
         username = request.form.get('username')
         email = request.form.get('email')
         password = request.form.get('password')
+        if not all([username, email, password]):
+            flash("All fields are required.")
+            return redirect(url_for('auth.signup'))
+
         hashed_pw = generate_password_hash(password)
         # Check if the user already exists
         existing_user = User.query.filter_by(email=email).first()
