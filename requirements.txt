@@ -20,4 +20,3 @@ Jinja2
 MarkupSafe
 
 python-dotenv
-psycopg2-binary
