@@ -1,15 +1,16 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h1>Welcome to the Simple Tamper Detector</h1>
+  <h1>Welcome to Simple Tamper Detector</h1>
   <p style="text-align: center; font-size: 1.2em;">
-    Upload an original image to generate a key,<br />
-    then upload suspect images to detect tampering.
+    This tool helps detect image tampering using visual and hash-based methods.
   </p>
   <div class="buttons-row">
-    <a href="{{ url_for('main.index') }}">
-      <button>🚀 Start Detecting</button>
-    </a>
+    {% if current_user.is_authenticated %}
+      <a href="{{ url_for('main.index') }}"><button>🚀 Start Detecting</button></a>
+    {% else %}
+      <a href="{{ url_for('auth.login') }}"><button>🔐 Login to Start</button></a>
+    {% endif %}
   </div>
 {% endblock %}
 
