@@ -56,8 +56,9 @@ def create_app():
     app.register_blueprint(upload_bp)
 
     # Create tables and ensure admin user exists
-    with app.app_context():
-        db.create_all()
-        create_admin_user()
+    if os.environ.get("FLASK_ENV") == "development": 
+        with app.app_context():
+            db.create_all()
+            create_admin_user()
 
     return app
