@@ -29,7 +29,7 @@
   {% if original_img %}
     <div class="result-images">
       <h3>Original Image:</h3>
-      <img src="{{ url_for('static', filename='uploads/' + original_img) }}" alt="Original Image" style="max-width: 100%;" />
+      <img src="{{ url_for('static', filename='uploads/' + original_img) }}" alt="Original Image" class="uploaded-image" style="max-width: 100%;" />
     </div>
   {% endif %}
 
@@ -50,7 +50,7 @@
     <div class="result-images">
       <h3>Processed Images with Tampering Highlighted:</h3>
       {% for img in processed_imgs %}
-        <img src="{{ url_for('static', filename='uploads/' + img) }}" alt="Processed Image" class="multiple-img" style="max-width: 100%; margin-bottom: 20px;" />
+        <img src="{{ url_for('static', filename='uploads/' + img) }}" alt="Processed Image" class="compare-image" style="max-width: 100%; margin-bottom: 20px;" />
       {% endfor %}
     </div>
   {% endif %}
