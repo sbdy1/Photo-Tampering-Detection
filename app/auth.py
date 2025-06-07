@@ -28,8 +28,10 @@ def signup():
         new_user = User(username=username, email=email, password_hash=hashed_pw, role=role)
 
         db.session.add(new_user)
-        db.session.commit()
-
+        print("Saving user...")
+        #db.session.commit()
+        print("User saved (fake)")
+        
         flash(f"Account created successfully. Logged in as {role}")
         login_user(new_user)
         return redirect(url_for('main.index'))
