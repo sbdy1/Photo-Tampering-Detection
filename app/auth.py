@@ -12,26 +12,22 @@ def signup():
         username = request.form.get('username')
         email = request.form.get('email')
         password = request.form.get('password')
+        
         if not all([username, email, password]):
             flash("All fields are required.")
             return redirect(url_for('auth.signup'))
 
-        hashed_pw = generate_password_hash(password)
         # Check if the user already exists
         existing_user = User.query.filter_by(email=email).first()
         if existing_user:
             flash('Email already registered.')
             return redirect(url_for('auth.signup'))
 
+        hashed_pw = generate_password_hash(password)
         # Determine role based on email
-        if  username == 'admin':
-            role = 'admin'
-        else:
-            role = 'user'
+        role = 'admin' if username == 'admin' else 'user'
 
-        new_user = User(username=username, email=email,role=role)
-        new_user.set_password(password)
-        
+        new_user = User(username=username, email=email, role=role, password_hash=hashed_pw)    
         db.session.add(new_user)
         db.session.commit()
         
@@ -45,8 +41,11 @@ def signup():
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
+        username = request.form.get('username')
         entered_password = request.form.get('password')  # <-- THIS is what was missing
-        user = User.query.filter_by(username=request.form.get('username')).first()
+        
+        user = User.query.filter_by(username=username).first()
+        
         if user and check_password_hash(user.password_hash, entered_password):
             login_user(user)
             if user.role == 'admin':
