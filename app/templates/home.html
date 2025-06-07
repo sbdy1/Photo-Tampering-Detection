@@ -1,1 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Welcome to the Simple Tamper Detector</h1>
+  <p style="text-align: center; font-size: 1.2em;">
+    Upload an original image to generate a key,<br />
+    then upload suspect images to detect tampering.
+  </p>
+  <div class="buttons-row">
+    <a href="{{ url_for('main.index') }}">
+      <button>🚀 Start Detecting</button>
+    </a>
+  </div>
+{% endblock %}
 
