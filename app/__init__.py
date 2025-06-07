@@ -16,8 +16,10 @@ def create_app():
     # Load base config from config.py
     app.config.from_object('config')
 
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL", "sqlite:///db.sqlite3")
-
+    raw_uri = os.getenv("DATABASE_URL", "sqlite:///db.sqlite3")
+    if raw_uri.startswith("postgres://"):  # old Heroku style
+        raw_uri = raw_uri.replace("postgres://", "postgresql://", 1)
+    app.config['SQLALCHEMY_DATABASE_URI'] = raw_uri
     # Override SECRET_KEY from environment or use default
     app.config['SECRET_KEY'] = os.environ.get("FLASK_SECRET_KEY", app.config.get('SECRET_KEY', 'dev_secret'))
 
