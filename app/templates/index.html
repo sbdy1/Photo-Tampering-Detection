@@ -50,7 +50,7 @@
     <div class="result-images">
       <h3>Processed Images with Tampering Highlighted:</h3>
       {% for img in processed_imgs %}
-        <img src="{{ url_for('static', filename='uploads/' + img) }}" alt="Processed Image" class="compare-image" margin-bottom: 20px;" />
+        <img src="{{ url_for('static', filename='uploads/' + img) }}" alt="Processed Image" class="compare-image" />
       {% endfor %}
     </div>
   {% endif %}
