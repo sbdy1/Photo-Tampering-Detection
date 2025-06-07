@@ -51,6 +51,7 @@ def create_app():
 
     # Create tables and ensure admin user exists
     if os.environ.get("FLASK_ENV") in ["development", "production"]: 
+        print("🟢 Running db.create_all() in app context")
         with app.app_context():
             db.create_all()
             create_admin_user()
