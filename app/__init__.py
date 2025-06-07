@@ -8,7 +8,7 @@ bcrypt = Bcrypt()
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
 
-db = SQLAlchemy()  # Make sure db is instantiated here if not imported
+db = SQLAlchemy(app)  # Make sure db is instantiated here if not imported
 
 def create_app():
     app = Flask(__name__, static_folder="static")
