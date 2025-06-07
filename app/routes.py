@@ -4,16 +4,18 @@ from flask_login import login_required, current_user
 main_bp = Blueprint('main', __name__)
 
 @main_bp.route('/', methods=["GET"])
-@login_required
 def index():
-    if current_user.is_authenticated:
-        print("현재 로그인 사용자:", current_user.username)
+    if not current_user.is_authenticated:
+        return redirect(url_for('main.home'))
+
+    print("현재 로그인 사용자:", current_user.username)
     return render_template(
         "index.html",
         user=current_user,
         original_img=session.get("original_filename"),
         processed_imgs=session.get("processed_filenames", [])
     )
+
 
 @main_bp.route('/home', methods=["GET"])
 def home():
