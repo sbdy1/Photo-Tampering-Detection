@@ -2,6 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_bcrypt import Bcrypt
+from datetime import timedelta
 import os
 
 bcrypt = Bcrypt()
@@ -22,7 +23,8 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = raw_uri
     # Override SECRET_KEY from environment or use default
     app.config['SECRET_KEY'] = os.environ.get("FLASK_SECRET_KEY", app.config.get('SECRET_KEY', 'dev_secret'))
-
+    
+    app.config['REMEMBER_COOKIE_DURATION'] = timedelta(minutes=10)
     # Upload settings
     app.config["UPLOAD_FOLDER"] = os.path.join(app.root_path, "static", "uploads")
     os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
