@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+env/
+venv/
+*.sqlite3
+
+# Flask uploads
+instance/
+static/uploads/
+
+# Local secrets
+.env
+
+# Editor junk
+.vscode/
+.idea/
+
+# Railway CLI
+.railway/
