@@ -20,4 +20,4 @@ Jinja2
 MarkupSafe
 
 python-dotenv
-psychopg2
+psycopg2
