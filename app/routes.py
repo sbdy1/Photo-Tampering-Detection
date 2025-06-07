@@ -14,3 +14,11 @@ def index():
         original_img=session.get("original_filename"),
         processed_imgs=session.get("processed_filenames", [])
     )
+    
+@main_bp.route('/clear', methods=["POST"])
+@login_required
+def clear_session():
+    session.pop('original_filename', None)
+    session.pop('processed_filenames', None)
+    flash("Images cleared.")
+    return redirect(url_for('main.index'))
