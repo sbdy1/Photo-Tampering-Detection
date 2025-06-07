@@ -16,7 +16,7 @@ def create_app():
     # Load base config from config.py
     app.config.from_object('config')
 
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL", "sqlite:///db.sqlite3")
 
     # Override SECRET_KEY from environment or use default
     app.config['SECRET_KEY'] = os.environ.get("FLASK_SECRET_KEY", app.config.get('SECRET_KEY', 'dev_secret'))
