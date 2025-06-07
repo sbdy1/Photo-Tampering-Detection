@@ -16,14 +16,7 @@ def create_app():
     # Load base config from config.py
     app.config.from_object('config')
 
-    # Override SQLALCHEMY_DATABASE_URI if DATABASE_URL env var exists (Railway sets this)
-    database_url = os.environ.get("DATABASE_URL")
-    if database_url:
-        # In some environments, DATABASE_URL may start with 'postgres://' which is deprecated
-        # so fix it to 'postgresql://' to avoid SQLAlchemy errors:
-        if database_url.startswith("postgres://"):
-            database_url = database_url.replace("postgres://", "postgresql://", 1)
-        app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+    app.config['SQLALCHEMY_DATABASE_URI'] = PostgreSQL/MySQL URL
 
     # Override SECRET_KEY from environment or use default
     app.config['SECRET_KEY'] = os.environ.get("FLASK_SECRET_KEY", app.config.get('SECRET_KEY', 'dev_secret'))
