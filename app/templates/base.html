@@ -127,20 +127,17 @@
     .result-images {
       text-align: center;
     }
-
-    .result-images img {
-      width: auto;
-      height: auto;
-      display: block;
-      margin: 0 auto;
-    }
-
+    .result-images img,
     .result-images .multiple-img {
-      width: auto;
-      height: auto;
+      max-width: 300px;
+      max-height: 300px; /* Adjust as needed */
+      border-radius: 8px;
       display: block;
-      margin: 0 auto;
+      margin: 10px auto;
+      border: 2px solid white;
+      object-fit: contain;
     }
+
   </style>
 
   {% block extra_head %}{% endblock %}
