@@ -64,7 +64,7 @@ def logout():
     flash("Logged out.")
     return redirect(url_for('auth.login'))
 
-@app.route('/delete_users')
+@auth_bp.route('/delete_users', methods=['GET', 'POST'])
 def delete_users():
     from app.models import User
     User.query.delete()
