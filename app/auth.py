@@ -63,3 +63,10 @@ def logout():
     session.clear()
     flash("Logged out.")
     return redirect(url_for('auth.login'))
+
+@app.route('/delete_users')
+def delete_users():
+    from app.models import User
+    User.query.delete()
+    db.session.commit()
+    return "Deleted all users"
