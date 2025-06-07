@@ -54,5 +54,8 @@
       {% endfor %}
     </div>
   {% endif %}
+<form action="{{ url_for('main.clear_session') }}" method="POST">
+    <button type="submit">🔄 Clear Images</button>
+</form>
 {% endblock %}
 
