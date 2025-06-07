@@ -16,8 +16,8 @@ class User(UserMixin, db.Model):
     role = db.Column(db.String(20), default='user')  # ✅ this line
     upload_count = db.Column(db.Integer, default=0)
 
-    def set_password(self, password):
-        self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
+    def __repr__(self):
+        return f'<User {self.username}>'
 
     def check_password(self, password):
         return bcrypt.check_password_hash(self.password_hash, password)
