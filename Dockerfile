@@ -4,10 +4,15 @@ FROM python:3.11-slim
 RUN apt-get update && apt-get install -y \
     libheif-dev \
     build-essential \
+    libpq-dev \
+    libjpeg-dev \
+    zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Set work directory
 WORKDIR /app
+
+RUN pip install --upgrade pip setuptools
 
 # Copy requirements and install
 COPY requirements.txt .
