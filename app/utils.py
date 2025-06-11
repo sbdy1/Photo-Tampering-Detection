@@ -9,15 +9,6 @@ import json
 
 pillow_heif.register_heif_opener()
 
-app = Flask(__name__, template_folder="templates", static_folder="static")
-app.config["UPLOAD_FOLDER"] = "uploads"
-app.config["ALLOWED_EXTENSIONS"] = {"png", "jpg", "jpeg", "gif", "heic", "heif"}
-app.config["ELA_QUALITY"] = 90 # Quality for ELA re-compression
-
-# Ensure upload folder exists
-if not os.path.exists(app.config["UPLOAD_FOLDER"]):
-    os.makedirs(app.config["UPLOAD_FOLDER"])
-
 def allowed_file(filename):
     return "." in filename and \
            filename.rsplit(".", 1)[1].lower() in app.config["ALLOWED_EXTENSIONS"]
