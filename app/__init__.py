@@ -28,6 +28,9 @@ def create_app():
     # Upload settings
     app.config["UPLOAD_FOLDER"] = os.path.join(app.root_path, "static", "uploads")
     os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
+    app.config["ALLOWED_EXTENSIONS"] = {"png", "jpg", "jpeg", "gif", "heic", "heif"}
+    app.config["ELA_QUALITY"] = 90 # Quality for ELA re-compression
+
     app.config['MAX_CONTENT_LENGTH'] = 60 * 1024 * 1024  # 60MB max upload size
 
     # Initialize extensions with app
