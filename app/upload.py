@@ -14,10 +14,6 @@ from PIL import Image
 
 bp = Blueprint("upload", __name__)
 
-@bp.route("/")
-def index():
-    return render_template("index.html")
-
 @bp.route("/analyze", methods=["POST"])
 def analyze_image():
     if "file" not in request.files:
