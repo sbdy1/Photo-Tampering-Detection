@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.10-slim
 
 # Install system dependencies for pyheif (libheif + build tools)
 RUN apt-get update && apt-get install -y \
@@ -7,11 +7,16 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     libjpeg-dev \
     zlib1g-dev \
+    libglib2.0-0 \
+    libsm6 \
+    libxrender1 \
+    libxext6 \
     && rm -rf /var/lib/apt/lists/*
 
 # Set work directory
 WORKDIR /app
 
+# Upgrade pip
 RUN pip install --upgrade pip setuptools
 
 # Copy requirements and install
