@@ -224,7 +224,27 @@
             background: rgba(0, 255, 157, 0.3);
         }
     </style>
+    
+    {% block extra_head %}{% endblock %}
 </head>
+<body>
+  <nav class="top-left-nav">
+      <a href="/home" class="nav-link">🏠 Home</a>
+      <a href="/logout" class="nav-link">🚪 Logout</a>
+  </nav>
+
+  <div class="container">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul>
+          {% for message in messages %}
+            <li>{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
 <body>
     <div class="container">
         <h1>🔍 Enhanced Photo Tampering Detection</h1>
