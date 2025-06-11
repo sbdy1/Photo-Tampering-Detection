@@ -10,7 +10,7 @@ def index():
 
     print("현재 로그인 사용자:", current_user.username)
     return render_template(
-        "index.html",
+        "base.html",
         user=current_user,
         original_img=session.get("original_filename"),
         processed_imgs=session.get("processed_filenames", [])
@@ -27,4 +27,4 @@ def clear_session():
     session.pop('original_filename', None)
     session.pop('processed_filenames', None)
     flash("Images cleared.")
-    return redirect(url_for('main.index'))
+    return redirect(url_for('main.base'))
