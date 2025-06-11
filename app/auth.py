@@ -33,7 +33,7 @@ def signup():
         
         flash(f"Account created successfully. Logged in as {role}")
         login_user(new_user)
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.base'))
 
     return render_template('signup.html')
 
