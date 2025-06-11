@@ -1,12 +1,16 @@
-from app import app
+from app import create_app, db
+
+app = create_app()
 
 if __name__ == "__main__":
-    print("🚀 Starting Enhanced Photo Tampering Detection Application...")
-    print("📍 Server will be available at: http://localhost:5001")
-    print("🔍 Features: ELA Analysis, HEIC Support, Drag & Drop Interface")
-    print("⚡ Press Ctrl+C to stop the server")
-    print("-" * 60)
-    
+    with app.app_context():
+        print("🟢 Running db.create_all() in app context")
+        print("🚀 Starting Enhanced Photo Tampering Detection Application...")
+        print("📍 Server will be available at: http://localhost:5001")
+        print("🔍 Features: ELA Analysis, HEIC Support, Drag & Drop Interface")
+        print("⚡ Press Ctrl+C to stop the server")
+        print("-" * 60)
+        db.create_all()
     try:
         app.run(debug=True, host="0.0.0.0", port=5000)
     except KeyboardInterrupt:
@@ -14,4 +18,3 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"❌ Error starting server: {e}")
         sys.exit(1)
-
