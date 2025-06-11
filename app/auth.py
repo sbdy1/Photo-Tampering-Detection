@@ -51,7 +51,7 @@ def login():
             if user.role == 'admin':
                 return redirect(url_for('admin.admin_panel'))
             else:
-                return redirect(url_for('main.index'))
+                return redirect(url_for('main.base'))
         else:
             flash("Invalid credentials")
     return render_template('login.html')
