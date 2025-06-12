@@ -12,7 +12,7 @@
   <tr>
     <td>{{ user.email }}</td>
     <td>{{ user.upload_count }}</td>
-    <td><a href="{{ url_for('admin.impersonate', user_id=user.id) }}">Impresonate</a></td>
+    <td><a href="{{ url_for('admin.impersonate', user_id=user.id) }}">Impersonate</a></td>
   </tr>
   {% endfor %}
 </table>
