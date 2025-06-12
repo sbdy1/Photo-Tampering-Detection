@@ -15,7 +15,7 @@ pillow
 pillow-heif
 numpy
 scipy
-werkzeug
+werkzeug 
 itsdangerous
 Jinja2
 MarkupSafe
