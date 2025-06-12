@@ -5,10 +5,9 @@
 {% endblock %}
 
 {% block content %}
-<form action="{{ url_for('upload.analyze_image') }}" method="post" enctype="multipart/form-data">      
       <div class="container">
         <h1>🔍 Enhanced Photo Tampering Detection</h1>
-        <div class="upload-section" id="uploadSection" onclick="document.getElementById('imageUpload').click()">
+        <div class="upload-section" id="uploadSection" onclick="document.getElementById(\'imageUpload\').click()">
             <div class="upload-text">📁 Drag & Drop your image here, or click to select file</div>
             <div class="file-info">Supports: JPG, PNG, GIF, HEIC, HEIF </div>
             <input type="file" id="imageUpload" name="file" accept="image/*,.heic,.heif">
@@ -19,26 +18,26 @@
             <h3>🛠️ Select Detection Methods</h3>
             <button class="select-all-btn" onclick="toggleAllMethods()">Select All / Deselect All</button>
             <div class="methods-grid">
-                <div class="method-option" onclick="toggleMethod('ela')">
+                <div class="method-option" onclick="toggleMethod(\'ela\')">
                     <input type="checkbox" id="ela" name="methods" value="ela" checked>
                     <div class="method-title">Error Level Analysis (ELA)</div>
                     <div class="method-description">Detects compression inconsistencies that may indicate tampering by analyzing re-compression artifacts.</div>
                 </div>
-                <div class="method-option" onclick="toggleMethod('noise')">
+                <div class="method-option" onclick="toggleMethod(\'noise\')">
                     <input type="checkbox" id="noise" name="methods" value="noise" checked>
                     <div class="method-title">Noise Analysis</div>
                     <div class="method-description">Analyzes noise patterns to detect inconsistencies introduced during image manipulation.</div>
                 </div>
-                <div class="method-option" onclick="toggleMethod('copymove')">
+                <div class="method-option" onclick="toggleMethod(\'copymove\')">
                     <input type="checkbox" id="copymove" name="methods" value="copymove" checked>
                     <div class="method-title">Copy-Move Detection</div>
                     <div class="method-description">Identifies duplicated regions within an image that may indicate copy-paste tampering.</div>
                 </div>
-                <div class="method-option" onclick="toggleMethod('metadata')">
+                <div class="method-option" onclick="toggleMethod(\'metadata\')">
                     <input type="checkbox" id="metadata" name="methods" value="metadata" checked>
                     <div class="method-title">Metadata Analysis</div>
                     <div class="method-description">Examines EXIF data and other metadata for inconsistencies that suggest manipulation.</div>
-                </div>
+                L</div>
             </div>
         </div>
         
@@ -48,18 +47,20 @@
             <div id="resultsContent"></div>
         </div>
     </div>
-</form>  
 
+{% endblock %}
+
+{% block scripts %}
 <script>
-        const uploadSection = document.getElementById('uploadSection');
-        const imageUpload = document.getElementById('imageUpload');
-        const imagePreview = document.getElementById('imagePreview');
-        const analyzeBtn = document.getElementById('analyzeBtn');
-        const resultsSection = document.getElementById('resultsSection');
-        const resultsContent = document.getElementById('resultsContent');
+        const uploadSection = document.getElementById(\'uploadSection\');
+        const imageUpload = document.getElementById(\'imageUpload\');
+        const imagePreview = document.getElementById(\'imagePreview\');
+        const analyzeBtn = document.getElementById(\'analyzeBtn\');
+        const resultsSection = document.getElementById(\'resultsSection\');
+        const resultsContent = document.getElementById(\'resultsContent\');
 
         // File upload handling
-        imageUpload.addEventListener('change', function(event) {
+        imageUpload.addEventListener(\'change\', function(event) {
             const [file] = event.target.files;
             if (file) {
                 displayImagePreview(file);
@@ -68,19 +69,19 @@
         });
 
         // Drag and drop handling
-        uploadSection.addEventListener('dragover', function(e) {
+        uploadSection.addEventListener(\'dragover\', function(e) {
             e.preventDefault();
-            uploadSection.classList.add('dragover');
+            uploadSection.classList.add(\'dragover\');
         });
 
-        uploadSection.addEventListener('dragleave', function(e) {
+        uploadSection.addEventListener(\'dragleave\', function(e) {
             e.preventDefault();
-            uploadSection.classList.remove('dragover');
+            uploadSection.classList.remove(\'dragover\');
         });
 
-        uploadSection.addEventListener('drop', function(e) {
+        uploadSection.addEventListener(\'drop\', function(e) {
             e.preventDefault();
-            uploadSection.classList.remove('dragover');
+            uploadSection.classList.remove(\'dragover\');
             
             const files = e.dataTransfer.files;
             if (files.length > 0) {
@@ -105,19 +106,19 @@
         }
 
         function updateMethodSelection() {
-            const methodOptions = document.querySelectorAll('.method-option');
+            const methodOptions = document.querySelectorAll(\\.method-option\\);
             methodOptions.forEach(option => {
-                const checkbox = option.querySelector('input[type="checkbox"]');
+                const checkbox = option.querySelector(\'input[type="checkbox"]\');
                 if (checkbox.checked) {
-                    option.classList.add('selected');
+                    option.classList.add(\'selected\');
                 } else {
-                    option.classList.remove('selected');
+                    option.classList.remove(\'selected\');
                 }
             });
         }
 
         function toggleAllMethods() {
-            const checkboxes = document.querySelectorAll('input[name="methods"]');
+            const checkboxes = document.querySelectorAll(\'input[name="methods"]\');
             const allChecked = Array.from(checkboxes).every(cb => cb.checked);
             
             checkboxes.forEach(cb => {
@@ -130,48 +131,48 @@
         updateMethodSelection();
 
         async function analyzeImage() {
-            const fileInput = document.getElementById('imageUpload');
-            const selectedMethods = Array.from(document.querySelectorAll('input[name="methods"]:checked')).map(cb => cb.value);
+            const fileInput = document.getElementById(\'imageUpload\');
+            const selectedMethods = Array.from(document.querySelectorAll(\'input[name="methods"]:checked\')).map(cb => cb.value);
             
             if (fileInput.files.length === 0) {
-                alert('Please select an image first.');
+                alert(\'Please select an image first.\');
                 return;
             }
 
             if (selectedMethods.length === 0) {
-                alert('Please select at least one detection method.');
+                alert(\'Please select at least one detection method.\');
                 return;
             }
 
             // Show loading state
-            resultsSection.style.display = 'block';
+            resultsSection.style.display = \'block\';
             resultsContent.innerHTML = `
                 <div class="loading">
                     <div class="spinner"></div>
                     <p>Analyzing image for tampering evidence...</p>
-                    <p>Running: ${selectedMethods.join(', ').toUpperCase()}</p>
+                    <p>Running: ${selectedMethods.join(\' , \').toUpperCase()}</p>
                     <p>This may take a few moments.</p>
                 </div>
             `;
             
             analyzeBtn.disabled = true;
-            analyzeBtn.textContent = '🔄 Analyzing...';
+            analyzeBtn.textContent = \'🔄 Analyzing...\';
 
             const formData = new FormData();
-            formData.append('file', fileInput.files[0]);
+            formData.append(\'file\', fileInput.files[0]);
             selectedMethods.forEach(method => {
-                formData.append('methods', method);
+                formData.append(\'methods\', method);
             });
 
             try {
-                const response = await fetch('/analyze', {
-                    method: 'POST',
+                const response = await fetch(\'/analyze\', {
+                    method: \'POST\',
                     body: formData,
                 });
 
                 if (!response.ok) {
                     const errorText = await response.text();
-                    throw new Error(`Server error: ${errorText}`);
+                    throw new Error(`Server error: ${response.status} - ${errorText}`);
                 }
 
                 const data = await response.json();
@@ -186,12 +187,12 @@
                 `;
             } finally {
                 analyzeBtn.disabled = false;
-                analyzeBtn.textContent = '🔬 Analyze Image';
+                analyzeBtn.textContent = \'🔬 Analyze Image\';
             }
         }
 
         function displayResults(data) {
-            let resultsHTML = '';
+            let resultsHTML = \'\';
 
             if (data.results) {
                 if (data.results.ela_result) {
@@ -200,7 +201,7 @@
                             <h3>🔍 Error Level Analysis (ELA)</h3>
                             <p>ELA highlights areas with different compression levels, which may indicate tampering.</p>
                             <img src="/uploads/${data.results.ela_result}" alt="ELA Result" class="result-image">
-                            <br><button class="download-btn" onclick="downloadImage('/uploads/${data.results.ela_result}', '${data.results.ela_result}')">📥 Download ELA Result</button>
+                            <br><button class="download-btn" onclick="downloadImage(\'/uploads/${data.results.ela_result}\', \'${data.results.ela_result}\')">📥 Download ELA Result</button>
                         </div>
                     `;
                 }
@@ -211,7 +212,7 @@
                             <h3>📊 Noise Analysis</h3>
                             <p>Noise analysis detects inconsistencies in image noise patterns.</p>
                             <img src="/uploads/${data.results.noise_result}" alt="Noise Analysis Result" class="result-image">
-                            <br><button class="download-btn" onclick="downloadImage('/uploads/${data.results.noise_result}', '${data.results.noise_result}')">📥 Download Noise Analysis</button>
+                            <br><button class="download-btn" onclick="downloadImage(\'/uploads/${data.results.noise_result}\', \'${data.results.noise_result}\')">📥 Download Noise Analysis</button>
                         </div>
                     `;
                 }
@@ -222,7 +223,7 @@
                             <h3>🔄 Copy-Move Detection</h3>
                             <p>Copy-move detection identifies duplicated regions within the image.</p>
                             <img src="/uploads/${data.results.copy_move_result}" alt="Copy-Move Detection Result" class="result-image">
-                            <br><button class="download-btn" onclick="downloadImage('/uploads/${data.results.copy_move_result}', '${data.results.copy_move_result}')">📥 Download Copy-Move Result</button>
+                            <br><button class="download-btn" onclick="downloadImage(\'/uploads/${data.results.copy_move_result}\', \'${data.results.copy_move_result}\')">📥 Download Copy-Move Result</button>
                         </div>
                     `;
                 }
@@ -248,7 +249,7 @@
                     `;
                 }
 
-                if (resultsHTML === '') {
+                if (resultsHTML === \'\') {
                     resultsHTML = `
                         <div class="result-item">
                             <h3>✅ Analysis Complete</h3>
@@ -260,7 +261,7 @@
                 resultsHTML = `
                     <div class="result-item">
                         <h3>✅ Analysis Complete</h3>
-                        <p>${data.message || 'Analysis completed successfully.'}</p>
+                        <p>${data.message || \'Analysis completed successfully.\'}</p>
                     </div>
                 `;
             }
@@ -269,7 +270,7 @@
         }
 
         function downloadImage(url, filename) {
-            const link = document.createElement('a');
+            const link = document.createElement(\'a\');
             link.href = url;
             link.download = filename;
             document.body.appendChild(link);
@@ -279,4 +280,3 @@
 
 </script>
 {% endblock %}
-
