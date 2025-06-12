@@ -6,7 +6,7 @@ from datetime import timedelta
 import os
 
 bcrypt = Bcrypt()
-login_manager = LoginManager()
+login_manager = LoginManager() 
 login_manager.login_view = 'auth.login'
 
 db = SQLAlchemy()  # Make sure db is instantiated here if not imported
