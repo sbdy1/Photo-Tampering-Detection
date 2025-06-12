@@ -75,17 +75,23 @@ def copy_move_detection(image_path, output_folder):
     except Exception as e:
         print(f"Error during Copy-Move Detection: {e}")
         return None
-
+        
 def metadata_analysis(image_path):
     try:
-        image = Image.open(image_path)
-        exif_data = image._getexif()
+        img = Image.open(image_path)
+        print(f"[DEBUG] Format: {img.format}, Info keys: {img.info.keys()}")
+        exif_data = img._getexif()
+        print(f"[DEBUG] EXIF raw: {exif_data}")
+
+        if not exif_data:
+            return {"Info": "No metadata found"}
 
         metadata = {}
-        if exif_data:
-            for tag_id, value in exif_data.items():
-                tag = TAGS.get(tag_id, tag_id)
-                metadata[tag] = str(value)
-        return metadata if metadata else {"Info": "No metadata found"}
+        for tag, value in exif_data.items():
+            decoded = TAGS.get(tag, tag)
+            metadata[decoded] = value
+
+        return metadata
+
     except Exception as e:
         return {"Error": str(e)}
