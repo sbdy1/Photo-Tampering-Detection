@@ -51,7 +51,7 @@ def analyze_image():
         return jsonify({"error": "No file part in the request"}), 400
 
     file = request.files["file"]
-
+    methods = request.form.getlist('methods')
     # Accept methods as comma-separated string or multiple form fields
     raw_methods = request.form.get("methods") or ""
     selected_methods = request.form.getlist("methods") or raw_methods.split(",")
