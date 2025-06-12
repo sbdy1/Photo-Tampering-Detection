@@ -46,8 +46,15 @@ def analyze_image():
 
     converted_filename = "converted_" + original_filename.rsplit(".", 1)[0] + ".jpg"
     converted_filepath = os.path.join(app.config["UPLOAD_FOLDER"], converted_filename)
-    img.save(converted_filepath)
-    print("Converted image saved to:", converted_filepath)
+    try:
+        if img.mode not in ["RGB", "RGBA"]:
+            print("Converting image mode from", img.mode, "to RGB")
+            img = img.convert("RGB")
+        img.save(converted_filepath, format="JPEG")
+        print("Converted image saved to:", converted_filepath)
+    except Exception as e:
+        print("[ERROR] Failed to save converted image:", e)
+        return jsonify({"error": f"Could not save converted image: {str(e)}"}), 500
 
     results = {}
 
