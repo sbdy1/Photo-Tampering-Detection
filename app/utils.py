@@ -5,6 +5,8 @@ import pillow_heif
 import io
 import numpy as np
 import cv2
+import pyheif
+import piexif
 
 pillow_heif.register_heif_opener()
 
@@ -13,13 +15,27 @@ def allowed_file(filename, allowed_extensions):
 
 def convert_heic_to_jpeg(image_path):
     try:
-        img = Image.open(image_path)
-        if img.format in ["HEIC", "HEIF"]:
-            output_buffer = io.BytesIO()
-            img.save(output_buffer, format="JPEG", quality=95)
-            output_buffer.seek(0)
-            return Image.open(output_buffer)
-        return img
+        heif_file = pyheif.read(image_path)
+
+        # Extract metadata if available
+        exif_data = None
+        for metadata in heif_file.metadata or []:
+            if metadata['type'] == 'Exif':
+                exif_data = metadata['data']
+
+        image = Image.frombytes(
+            heif_file.mode, heif_file.size, heif_file.data,
+            "raw", heif_file.mode
+        )
+
+        output_buffer = io.BytesIO()
+        if exif_data:
+            image.save(output_buffer, format="JPEG", quality=95, exif=exif_data)
+        else:
+            image.save(output_buffer, format="JPEG", quality=95)
+        output_buffer.seek(0)
+        return Image.open(output_buffer)
+
     except Exception as e:
         print(f"Error converting HEIC: {e}")
         return None
@@ -84,7 +100,9 @@ def metadata_analysis(image_path):
         print(f"[DEBUG] EXIF raw: {exif_data}")
 
         if not exif_data:
-            return {"Info": "No metadata found"}
+            if img.format in ["HEIC", "HEIF"]:
+                return {"Info": "No metadata found (HEIC format not fully supported for EXIF)"}
+            return {"Info": "No metadata found (Image may lack EXIF)"}
 
         metadata = {}
         for tag, value in exif_data.items():
