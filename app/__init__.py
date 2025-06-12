@@ -52,7 +52,7 @@ def create_app():
     app.register_blueprint(auth_bp, url_prefix='/')
     app.register_blueprint(main_bp, url_prefix='/')
     app.register_blueprint(admin_bp, url_prefix='/admin')
-    app.register_blueprint(upload_bp)
+    app.register_blueprint(upload_bp, url_prefix="/upload")
 
         # Create tables and ensure admin user exists
     #print("🟢 Running db.create_all() in app context")
