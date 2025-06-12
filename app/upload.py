@@ -45,7 +45,7 @@ def resize_image_dimensions(img, max_pixels=1920):
     new_size = (int(width * ratio), int(height * ratio))
     return img.resize(new_size, Image.ANTIALIAS)
 
-@bp.route("/analyze", methods=["POST"])
+@bp.route("/upload/analyze", methods=["POST"])
 def analyze_image():
     if "file" not in request.files:
         return jsonify({"error": "No file part in the request"}), 400
