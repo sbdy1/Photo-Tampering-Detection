@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 
 {% block content %}
-  <h1>Simple Tamper Detector</h1>
+  <h1>Enhanced Tamper Detector</h1>
 
   {% with messages = get_flashed_messages() %}
     {% if messages %}
@@ -13,49 +13,139 @@
     {% endif %}
   {% endwith %}
 
-  <h2>Step 1: Upload Original Image & Save Key</h2>
-  <form method="POST" action="/upload_original" enctype="multipart/form-data" id="original-form">
-    <label class="upload-zone" id="original-zone">
-      Click or drag the <strong>original image</strong> here
-      <input type="file" name="original" id="original-input" accept="image/*" required>
+  <h2>Upload Image for Analysis</h2>
+  <form method="POST" action="{{ url_for(\'upload.analyze_image\') }}" enctype="multipart/form-data" id="analyze-form">
+    <label class="upload-zone" id="analyze-zone">
+      Click or drag an image here
+      <input type="file" name="file" id="analyze-input" accept="image/*" required>
     </label>
-    <div class="preview" id="original-preview"></div>
+    <div class="preview" id="analyze-preview"></div>
+    
+    <h3>Select Analysis Methods:</h3>
+    <div class="method-selection">
+        <label><input type="checkbox" name="methods" value="ela" checked> Error Level Analysis (ELA)</label>
+        <label><input type="checkbox" name="methods" value="noise" checked> Noise Analysis</label>
+        <label><input type="checkbox" name="methods" value="copymove" checked> Copy-Move Detection</label>
+        <label><input type="checkbox" name="methods" value="metadata" checked> Metadata Analysis</label>
+    </div>
+
     <div class="buttons-row">
-      <button type="submit">Upload Original</button>
-      <button type="button" id="original-reset">Reset</button>
+      <button type="submit">Analyze Image</button>
+      <button type="button" id="analyze-reset">Reset</button>
     </div>
   </form>
 
-  {% if original_img %}
-    <div class="result-images">
-      <h3>Original Image:</h3>
-      <img src="{{ url_for('static', filename='uploads/' + original_img) }}" alt="Original Image" class="uploaded-image" />
-    </div>
-  {% endif %}
+  <div id="results-container">
+    <!-- Results will be displayed here by JavaScript -->
+  </div>
 
-  <h2>Step 2: Upload Suspect Images to Compare</h2>
-  <form method="POST" action="/upload_suspects" enctype="multipart/form-data" id="suspect-form">
-    <label class="upload-zone" id="suspect-zone">
-      Click or drag <strong>up to 3 suspect images</strong> here
-      <input type="file" name="suspects" id="suspect-input" multiple accept="image/*" required>
-    </label>
-    <div class="preview" id="suspect-preview"></div>
-    <div class="buttons-row">
-      <button type="submit">Compare Image(s)</button>
-      <button type="button" id="suspect-reset">Reset</button>
-    </div>
-  </form>
-
-  {% if processed_imgs %}
-    <div class="result-images">
-      <h3>Processed Images with Tampering Highlighted:</h3>
-      {% for img in processed_imgs %}
-        <img src="{{ url_for('static', filename='uploads/' + img) }}" alt="Processed Image" class="compare-image" />
-      {% endfor %}
-    </div>
-  {% endif %}
-<form action="{{ url_for('main.clear_session') }}" method="POST">
-    <button type="submit">🔄 Clear Images</button>
-</form>
 {% endblock %}
 
+{% block scripts %}
+<script>
+  document.addEventListener(\'DOMContentLoaded\', function() {
+    const analyzeForm = document.getElementById(\'analyze-form\');
+    const analyzeInput = document.getElementById(\'analyze-input\');
+    const analyzePreview = document.getElementById(\'analyze-preview\');
+    const analyzeReset = document.getElementById(\'analyze-reset\');
+    const resultsContainer = document.getElementById(\'results-container\');
+
+    function previewFile(file, previewElement) {
+        previewElement.innerHTML = \'\'; // Clear previous preview
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.createElement(\'img\');
+                img.src = e.target.result;
+                previewElement.appendChild(img);
+            }
+            reader.readAsDataURL(file);
+        }
+    }
+
+    analyzeInput.addEventListener(\'change\', function() {
+        previewFile(this.files[0], analyzePreview);
+    });
+
+    analyzeReset.addEventListener(\'click\', function() {
+        analyzeForm.reset();
+        analyzePreview.innerHTML = \'\';
+        resultsContainer.innerHTML = \'\';
+    });
+
+    analyzeForm.addEventListener(\'submit\', async function(event) {
+        event.preventDefault();
+        resultsContainer.innerHTML = 
+        `<div class="loading-spinner"></div>
+         <p class="loading-text">Analyzing image, please wait...</p>`;
+
+        const formData = new FormData(analyzeForm);
+        
+        try {
+            const response = await fetch("{{ url_for(\'upload.analyze_image\') }}", {
+                method: \'POST\',
+                body: formData
+            });
+
+            const data = await response.json();
+            resultsContainer.innerHTML = \'\'; // Clear loading spinner
+
+            if (response.ok) {
+                if (data.message) {
+                    const msgElement = document.createElement(\'p\');
+                    msgElement.textContent = data.message;
+                    resultsContainer.appendChild(msgElement);
+                }
+
+                if (data.results) {
+                    for (const method in data.results) {
+                        const result = data.results[method];
+                        const resultDiv = document.createElement(\'div\');
+                        resultDiv.classList.add(\'result-item\');
+                        
+                        const title = document.createElement(\'h4\');
+                        title.textContent = method.replace(\'_result\', \'\').toUpperCase() + \' Analysis\';
+                        resultDiv.appendChild(title);
+
+                        if (typeof result === \'string\' && (result.endsWith(\'.jpg\') || result.endsWith(\'.png\'))) {
+                            const img = document.createElement(\'img\');
+                            img.src = "{{ url_for(\'upload.uploaded_file\', filename=\'\') }}" + result;
+                            img.alt = method + \' result\';
+                            resultDiv.appendChild(img);
+                            const downloadLink = document.createElement(\'a\');
+                            downloadLink.href = img.src;
+                            downloadLink.textContent = \'Download Result\';
+                            downloadLink.download = result;
+                            resultDiv.appendChild(downloadLink);
+                        } else if (typeof result === \'object\') { // For metadata
+                            const pre = document.createElement(\'pre\');
+                            pre.textContent = JSON.stringify(result, null, 2);
+                            resultDiv.appendChild(pre);
+                        } else {
+                            const p = document.createElement(\'p\');
+                            p.textContent = String(result);
+                            resultDiv.appendChild(p);
+                        }
+                        resultsContainer.appendChild(resultDiv);
+                    }
+                }
+            } else {
+                const errorElement = document.createElement(\'p\');
+                errorElement.classList.add(\'error-message\');
+                errorElement.textContent = `Error: ${data.error || \'Unknown error\'}`;
+                if(data.details) {
+                    const detailsElement = document.createElement(\'p\');
+                    detailsElement.textContent = `Details: ${data.details}`;
+                    errorElement.appendChild(detailsElement);
+                }
+                resultsContainer.appendChild(errorElement);
+            }
+        } catch (error) {
+            resultsContainer.innerHTML = 
+            `<p class="error-message">An unexpected error occurred: ${error.message}</p>`;
+            console.error(\'Fetch error:\', error);
+        }
+    });
+  });
+</script>
+{% endblock %}
