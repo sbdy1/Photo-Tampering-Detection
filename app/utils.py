@@ -1,5 +1,6 @@
 import os
 from PIL import Image, ImageChops, ImageEnhance, ExifTags, ImageDraw
+from PIL.ExifTags import TAGS
 import pillow_heif
 import io
 import numpy as np
@@ -77,13 +78,14 @@ def copy_move_detection(image_path, output_folder):
 
 def metadata_analysis(image_path):
     try:
-        img = Image.open(image_path)
-        exif_data = {}
-        if hasattr(img, "_getexif") and img._getexif() is not None:
-            for tag, value in img._getexif().items():
-                decoded = ExifTags.TAGS.get(tag, tag)
-                exif_data[decoded] = str(value)
-        return exif_data
+        image = Image.open(image_path)
+        exif_data = image._getexif()
+
+        metadata = {}
+        if exif_data:
+            for tag_id, value in exif_data.items():
+                tag = TAGS.get(tag_id, tag_id)
+                metadata[tag] = str(value)
+        return metadata if metadata else {"Info": "No metadata found"}
     except Exception as e:
-        print(f"Error during Metadata Analysis: {e}")
-        return None
+        return {"Error": str(e)}
