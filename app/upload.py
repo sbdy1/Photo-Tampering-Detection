@@ -44,12 +44,18 @@ def analyze_image():
     if img is None:
         return jsonify({"error": "Could not process image file"}), 500
 
-    converted_filename = "converted_" + original_filename.rsplit(".", 1)[0] + ".jpg"
-    converted_filepath = os.path.join(app.config["UPLOAD_FOLDER"], converted_filename)
     try:
+        print("Image mode:", img.mode)
+        print("Image format:", img.format)
+        print("Image size:", img.size)
+        
         if img.mode not in ["RGB", "RGBA"]:
             print("Converting image mode from", img.mode, "to RGB")
             img = img.convert("RGB")
+
+        converted_filename = "converted_" + original_filename.rsplit(".", 1)[0] + ".jpg"
+        converted_filepath = os.path.join(app.config["UPLOAD_FOLDER"], converted_filename)
+        
         img.save(converted_filepath, format="JPEG")
         print("Converted image saved to:", converted_filepath)
     except Exception as e:
