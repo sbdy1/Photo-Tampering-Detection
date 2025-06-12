@@ -98,24 +98,28 @@ def analyze_image():
     results = {}
 
     try:
+        print("Starting ELA analysis...")
         if "ela" in selected_methods or not selected_methods:
             ela_output = ela_analysis(converted_filepath, app.config["UPLOAD_FOLDER"], app.config["ELA_QUALITY"])
             print("ELA output:", ela_output)
             if ela_output:
                 results["ela_result"] = os.path.basename(ela_output)
-
+        
+        print("Starting Noise analysis...")
         if "noise" in selected_methods or not selected_methods:
             noise_output = noise_analysis(converted_filepath, app.config["UPLOAD_FOLDER"])
             print("Noise output:", noise_output)
             if noise_output:
                 results["noise_result"] = os.path.basename(noise_output)
-
+        
+        print("Starting Copy-Move detection...")
         if "copymove" in selected_methods or not selected_methods:
             copymove_output = copy_move_detection(converted_filepath, app.config["UPLOAD_FOLDER"])
             print("Copy-move output:", copymove_output)
             if copymove_output:
                 results["copy_move_result"] = os.path.basename(copymove_output)
 
+        print("Starting Metadata analysis...")
         if "metadata" in selected_methods or not selected_methods:
             metadata = metadata_analysis(converted_filepath)
             print("Metadata output:", metadata)
