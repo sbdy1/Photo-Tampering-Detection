@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, current_app, send_from_directory
 from werkzeug.utils import secure_filename
-import os
+import os, traceback
 from .utils import (
     allowed_file,
     convert_heic_to_jpeg,
@@ -90,7 +90,9 @@ def analyze_image():
                 results["metadata_result"] = metadata
 
     except Exception as e:
-        print("Analysis error:", e)
+        print("=== ERROR DURING ANALYSIS ===")
+        traceback.print_exc()
+        print("=============================")
         return jsonify({"error": "An error occurred during analysis", "details": str(e)}), 500
 
     # Clean up converted file if different from original
