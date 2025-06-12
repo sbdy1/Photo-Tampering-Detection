@@ -12,6 +12,39 @@ from .utils import (
 
 bp = Blueprint("upload", __name__)
 
+MAX_IMAGE_SIZE_MB = 10
+MAX_IMAGE_SIZE_BYTES = MAX_IMAGE_SIZE_MB * 1024 * 1024
+
+def resize_image_file(img, max_bytes=MAX_IMAGE_SIZE_BYTES):
+    """
+    Compress image to be under max_bytes by reducing quality.
+    """
+    buffer = io.BytesIO()
+    quality = 95
+    img.save(buffer, format="JPEG", quality=quality)
+    size = buffer.tell()
+
+    while size > max_bytes and quality > 20:
+        buffer = io.BytesIO()
+        quality -= 5
+        img.save(buffer, format="JPEG", quality=quality)
+        size = buffer.tell()
+
+    buffer.seek(0)
+    return Image.open(buffer)
+
+def resize_image_dimensions(img, max_pixels=1920):
+    """
+    Resize image dimensions to a max width or height of max_pixels.
+    """
+    width, height = img.size
+    if max(width, height) <= max_pixels:
+        return img
+
+    ratio = max_pixels / float(max(width, height))
+    new_size = (int(width * ratio), int(height * ratio))
+    return img.resize(new_size, Image.ANTIALIAS)
+
 @bp.route("/analyze", methods=["POST"])
 def analyze_image():
     if "file" not in request.files:
