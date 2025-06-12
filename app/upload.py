@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, current_app, render_template, send_from_directory
+from flask import Blueprint, request, jsonify, current_app, send_from_directory
 from werkzeug.utils import secure_filename
 import os
 from .utils import (
@@ -18,7 +18,7 @@ def analyze_image():
         return jsonify({"error": "No file part in the request"}), 400
 
     file = request.files["file"]
-    
+
     # Accept methods as comma-separated string or multiple form fields
     raw_methods = request.form.get("methods") or ""
     selected_methods = request.form.getlist("methods") or raw_methods.split(",")
@@ -48,14 +48,14 @@ def analyze_image():
         print("Image mode:", img.mode)
         print("Image format:", img.format)
         print("Image size:", img.size)
-        
+
         if img.mode not in ["RGB", "RGBA"]:
             print("Converting image mode from", img.mode, "to RGB")
             img = img.convert("RGB")
 
         converted_filename = "converted_" + original_filename.rsplit(".", 1)[0] + ".jpg"
         converted_filepath = os.path.join(app.config["UPLOAD_FOLDER"], converted_filename)
-        
+
         img.save(converted_filepath, format="JPEG")
         print("Converted image saved to:", converted_filepath)
     except Exception as e:
