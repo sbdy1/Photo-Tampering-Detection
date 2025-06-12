@@ -122,7 +122,7 @@ def metadata_analysis(image_path):
             decoded = TAGS.get(tag, tag)
             metadata[decoded] = str(value) # Convert value to string to avoid JSON serialization issues
 
-        return metadata
+        return metadata 
 
     except Exception as e:
         print(f"Error during Metadata Analysis: {e}")
