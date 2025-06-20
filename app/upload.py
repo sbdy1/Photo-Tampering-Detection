@@ -134,11 +134,13 @@ def analyze_image():
 
         print("Starting Copy-Move detection...")
         if "copy_move" in selected_methods or not selected_methods:
-            copy_move_output_path, copy_move_result_text = copy_move_analysis(converted_filepath, app.config["UPLOAD_FOLDER"])
-            print("Copy-Move output:", copy_move_output_path, copy_move_result_text)
+            print("Running Copy-Move detection...")
+            copy_move_output_path, copy_move_result_text = copy_move_detection(converted_filepath, app.config["UPLOAD_FOLDER"])
+            print("Copy-Move detection result:", copy_move_result_text)
+            print("Copy-Move image path:", copy_move_output_path)
+            results["copy_move_result"] = copy_move_result_text
             if copy_move_output_path:
                 results["copy_move_image"] = os.path.basename(copy_move_output_path)
-            results["copy_move_result"] = copy_move_result_text
 
         print("Starting Metadata analysis...")
         if "metadata" in selected_methods or not selected_methods:
