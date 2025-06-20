@@ -133,12 +133,12 @@ def analyze_image():
             results["noise_result"] = noise_result_text
 
         print("Starting Copy-Move detection...")
-        if "copymove" in selected_methods or not selected_methods:
-            copymove_output_path, copymove_result_text = copy_move_detection(converted_filepath, app.config["UPLOAD_FOLDER"])
-            print("Copy-move output:", copymove_output_path, copymove_result_text)
-            if copymove_output_path:
-                results["copymove_image"] = os.path.basename(copymove_output_path)
-            results["copymove_result"] = copymove_result_text
+        if "copy_move" in selected_methods or not selected_methods:
+            copy_move_output_path, copy_move_result_text = copy_move_detection(converted_filepath, app.config["UPLOAD_FOLDER"])
+            print("Copy-move output:", copy_move_output_path, copy_move_result_text)
+            if copy_move_output_path:
+                results["copy_move_image"] = os.path.basename(copy_move_output_path)
+            results["copy_move_result"] = copy_move_result_text
 
         print("Starting Metadata analysis...")
         if "metadata" in selected_methods or not selected_methods:
