@@ -118,31 +118,33 @@ def analyze_image():
     try:
         print("Starting ELA analysis...")
         if "ela" in selected_methods or not selected_methods:
-            ela_output = ela_analysis(converted_filepath, app.config["UPLOAD_FOLDER"], app.config["ELA_QUALITY"])
-            print("ELA output:", ela_output)
-            if ela_output:
-                results["ela_result"] = os.path.basename(ela_output)
-        
+            ela_output_path, ela_result_text = ela_analysis(converted_filepath, app.config["UPLOAD_FOLDER"], app.config["ELA_QUALITY"])
+            print("ELA output:", ela_output_path, ela_result_text)
+            if ela_output_path:
+                results["ela_image"] = os.path.basename(ela_output_path)
+            results["ela_result"] = ela_result_text
+
         print("Starting Noise analysis...")
         if "noise" in selected_methods or not selected_methods:
-            noise_output = noise_analysis(converted_filepath, app.config["UPLOAD_FOLDER"])
-            print("Noise output:", noise_output)
-            if noise_output:
-                results["noise_result"] = os.path.basename(noise_output)
-        
+            noise_output_path, noise_result_text = noise_analysis(converted_filepath, app.config["UPLOAD_FOLDER"])
+            print("Noise output:", noise_output_path, noise_result_text)
+            if noise_output_path:
+                results["noise_image"] = os.path.basename(noise_output_path)
+            results["noise_result"] = noise_result_text
+
         print("Starting Copy-Move detection...")
         if "copymove" in selected_methods or not selected_methods:
-            copymove_output = copy_move_detection(converted_filepath, app.config["UPLOAD_FOLDER"])
-            print("Copy-move output:", copymove_output)
-            if copymove_output:
-                results["copy_move_result"] = os.path.basename(copymove_output)
+            copymove_output_path, copymove_result_text = copy_move_detection(converted_filepath, app.config["UPLOAD_FOLDER"])
+            print("Copy-move output:", copymove_output_path, copymove_result_text)
+            if copymove_output_path:
+                results["copymove_image"] = os.path.basename(copymove_output_path)
+            results["copymove_result"] = copymove_result_text
 
         print("Starting Metadata analysis...")
         if "metadata" in selected_methods or not selected_methods:
             metadata = metadata_analysis(converted_filepath)
             print("Metadata output:", metadata)
-            if metadata:
-                results["metadata_result"] = metadata
+            results["metadata_result"] = metadata
 
     except Exception as e:
         print("=== ERROR DURING ANALYSIS ===")
