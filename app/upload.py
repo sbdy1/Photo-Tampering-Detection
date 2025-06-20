@@ -133,29 +133,12 @@ def analyze_image():
             results["noise_result"] = noise_result_text
 
         print("Starting Copy-Move detection...")
-        if not selected_methods or "copy_move" in selected_methods:
-            try:
-                copy_move_output_path, copy_move_result_text = copy_move_detection(
-                converted_filepath, app.config["UPLOAD_FOLDER"]
-                )
-                print("Copy-move output:", copy_move_output_path, copy_move_result_text)
-                if copy_move_output_path:
-                    results["copy_move_image"] = os.path.basename(copy_move_output_path)
-                else:
-                    print("[WARNING] No output image from copy-move detection.")
-                results["copy_move_result"] = copy_move_result_text
-            except Exception as e:
-                print("[ERROR] in copy_move_detection:", e)
-                traceback.print_exc()
-                results["copy_move_result"] = "Error during copy-move detection."
-
-#        print("Starting Copy-Move detection...")
-#        if "copy_move" in selected_methods or not selected_methods:
-#            copy_move_output_path, copy_move_result_text = copy_move_detection(converted_filepath, app.config["UPLOAD_FOLDER"])
-#            print("Copy-move output:", copy_move_output_path, copy_move_result_text)
-#            if copy_move_output_path:
-#                results["copy_move_image"] = os.path.basename(copy_move_output_path)
-#            results["copy_move_result"] = copy_move_result_text
+        if "copy_move" in selected_methods or not selected_methods:
+            copy_move_output_path, copy_move_result_text = copy_move_detection(converted_filepath, app.config["UPLOAD_FOLDER"])
+            print("Copy-Move output:", copy_move_output_path, copy_move_result_text)
+            if copy_move_output_path:
+                results["copy_move_image"] = os.path.basename(copy_move_output_path)
+            results["copy_move_result"] = copy_move_result_text
 
         print("Starting Metadata analysis...")
         if "metadata" in selected_methods or not selected_methods:
