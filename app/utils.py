@@ -125,7 +125,7 @@ def copy_move_detection(image_path, output_folder):
 
         output_path = os.path.join(
             output_folder,
-            os.path.basename(image_path).split(".")[0] + "_copymove.jpg"
+            os.path.basename(image_path).split(".")[0] + "_copy_move.jpg"
         )
         cv2.imwrite(output_path, img_matches)
 
