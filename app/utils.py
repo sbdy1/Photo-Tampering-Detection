@@ -129,8 +129,8 @@ def copy_move_detection(image_path, output_folder):
         )
         cv2.imwrite(output_path, img_matches)
 
-        result_text = f"Copy-move detection completed – {len(matches)} matches found (displaying top 20)."
-        return output_path, result_text
+        result = f"Copy-move detection completed – {len(matches)} matches found (displaying top 20)."
+        return output_path, result
 
     except Exception as e:
         return None, f"Copy-Move detection error: {str(e)}"
