@@ -95,15 +95,43 @@ def noise_analysis(image_path, output_folder):
 
 def copy_move_detection(image_path, output_folder):
     try:
-        img = Image.open(image_path).convert("RGB")
-        draw = ImageDraw.Draw(img)
-        draw.rectangle([(50, 50), (150, 150)], outline="red", width=5)
+        # Load image using OpenCV
+        img_cv = cv2.imread(image_path)
+        if img_cv is None:
+            return None, "Copy-move detection failed – image couldn't be loaded."
 
-        output_path = os.path.join(output_folder, os.path.basename(image_path).split(".")[0] + "_copymove.jpg")
-        img.save(output_path)
-        
-        result = "Marked a dummy region for copy-move – real detection not implemented yet."
+        gray = cv2.cvtColor(img_cv, cv2.COLOR_BGR2GRAY)
+
+        # ORB feature detector
+        orb = cv2.ORB_create(nfeatures=1000)
+        keypoints, descriptors = orb.detectAndCompute(gray, None)
+
+        if descriptors is None or len(keypoints) < 2:
+            return None, "Not enough keypoints for copy-move detection."
+
+        # BFMatcher with Hamming distance
+        bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
+        matches = bf.match(descriptors, descriptors)
+
+        # Filter matches (remove identical keypoints)
+        matches = [m for m in matches if m.distance > 0 and abs(m.queryIdx - m.trainIdx) > 10]
+
+        # Draw matches on image
+        img_matches = cv2.drawMatches(
+            img_cv, keypoints,
+            img_cv, keypoints,
+            matches[:20], None, flags=2
+        )
+
+        output_path = os.path.join(
+            output_folder,
+            os.path.basename(image_path).split(".")[0] + "_copymove.jpg"
+        )
+        cv2.imwrite(output_path, img_matches)
+
+        result = f"Copy-move detection completed – {len(matches)} matches found (displaying top 20)."
         return output_path, result
+
     except Exception as e:
         return None, f"Copy-Move detection error: {str(e)}"
         
