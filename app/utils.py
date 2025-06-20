@@ -58,15 +58,22 @@ def ela_analysis(image_path, output_folder, quality=90):
         ela_output_path = os.path.join(output_folder, os.path.basename(image_path).split(".")[0] + "_ela.jpg")
         ela_image.save(ela_output_path)
         os.remove(temp_path)
-        return ela_output_path
+
+        if max_diff > 30:
+            result = f"ELA detected high recompression artifacts (max diff: {max_diff}) – possible tampering."
+        else:
+            result = f"ELA showed minimal differences (max diff: {max_diff}) – likely untampered."
+
+        return ela_output_path, result
     except Exception as e:
         print(f"Error during ELA analysis: {e}")
-        return None
+        return None, f"ELA analysis failed: {str(e)}"
 
 def noise_analysis(image_path, output_folder):
     try:
         img = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
-        if img is None: return None
+        if img is None: 
+            return None, "Noise analysis failed – image couldn't be loaded."
 
         kernel = np.array([[-1,-1,-1],
                            [-1, 9,-1],
@@ -75,10 +82,16 @@ def noise_analysis(image_path, output_folder):
 
         noise_output_path = os.path.join(output_folder, os.path.basename(image_path).split(".")[0] + "_noise.jpg")
         cv2.imwrite(noise_output_path, noise_img)
-        return noise_output_path
+        
+        variance = np.var(noise_img)
+        if variance > 1000:
+            result = f"High noise variance detected ({variance:.2f}) – may indicate tampering or poor compression."
+        else:
+            result = f"Low noise variance ({variance:.2f}) – likely consistent with natural image."
+
+        return noise_output_path, result
     except Exception as e:
-        print(f"Error during Noise Analysis: {e}")
-        return None
+        return None, f"Noise analysis error: {str(e)}"
 
 def copy_move_detection(image_path, output_folder):
     try:
@@ -88,10 +101,11 @@ def copy_move_detection(image_path, output_folder):
 
         output_path = os.path.join(output_folder, os.path.basename(image_path).split(".")[0] + "_copymove.jpg")
         img.save(output_path)
-        return output_path
+        
+        result = "Marked a dummy region for copy-move – real detection not implemented yet."
+        return output_path, result
     except Exception as e:
-        print(f"Error during Copy-Move Detection: {e}")
-        return None
+        return None, f"Copy-Move detection error: {str(e)}"
         
 def metadata_analysis(image_path):
     try:
