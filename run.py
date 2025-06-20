@@ -13,7 +13,8 @@ if __name__ == "__main__":
         print("-" * 60)
         db.create_all()
     try:
-        app.run(debug=True, host="0.0.0.0", port=5001)
+        #app.run(debug=True, host="0.0.0.0", port=5001)
+        app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5001)))
     except KeyboardInterrupt:
         print("\n🛑 Server stopped by user")
     except Exception as e:
