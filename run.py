@@ -1,5 +1,5 @@
-from app import create_app, db
-import sys
+from app import create_app, db, 
+import sys, os
 
 app = create_app()
 
