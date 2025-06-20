@@ -4,11 +4,10 @@
   <!-- Additional head stuff if needed -->
 {% endblock %}
 
-{% block content %}     
+{% block content %}    
+<form action="{{ url_for('upload.analyze_image') }}" method="post" enctype="multipart/form-data"> 
 <div class="container">
         <h1>🔍 Enhanced Photo Tampering Detection</h1>
-        <form action="{{ url_for('upload.analyze_image') }}" method="post" enctype="multipart/form-data"> 
-        </form> 
         <div class="upload-section" id="uploadSection" onclick="document.getElementById('imageUpload').click()">
             <div class="upload-text">📁 Drag & Drop your image here, or click to select file</div>
             <div class="file-info">Supports: JPG, PNG, GIF, HEIC, HEIF </div>
@@ -49,7 +48,7 @@
             <div id="resultsContent"></div>
         </div>
     </div> 
-
+</form> 
 <script>
         const uploadSection = document.getElementById('uploadSection');
         const imageUpload = document.getElementById('imageUpload');
@@ -192,59 +191,59 @@
 
         
         function displayResults(data) {
-          let html = '';
-          const r = data.results || {};
+            let html = '';
+            const r = data.results || {};
 
-          if (r.ela_result) {
-            html += `
-              <div class="result-item">
-                <h3>🔍 Error Level Analysis</h3>
-                <p>Compression inconsistencies detected.</p>
-                <img src="/uploads/${r.ela_result}" class="result-image">
-                <button onclick="downloadImage('/uploads/${r.ela_result}', '${r.ela_result}')">📥 Download</button>
-              </div>`;
-          }
+            if (r.ela_result && r.ela_image) {
+                html += `
+                    <div class="result-item">
+                        <h3>🔍 Error Level Analysis</h3>
+                        <p>${r.ela_result}</p>
+                        <img src="/uploads/${encodeURIComponent(r.ela_image)}" class="result-image">
+                        <button onclick="downloadImage('/uploads/${encodeURIComponent(r.ela_image)}', '${r.ela_image}')">📥 Download</button>
+                    </div>`;
+            }
 
-          if (r.noise_result) {
-            html += `
-              <div class="result-item">
-                <h3>📊 Noise Analysis</h3>
-                <p>Noise pattern inconsistencies detected.</p>
-                <img src="/uploads/${r.noise_result}" class="result-image">
-                <button onclick="downloadImage('/uploads/${r.noise_result}', '${r.noise_result}')">📥 Download</button>
-              </div>`;
-          }
+            if (r.noise_result && r.noise_image) {
+                html += `
+                    <div class="result-item">
+                        <h3>📊 Noise Analysis</h3>
+                        <p>${r.noise_result}</p>
+                        <img src="/uploads/${encodeURIComponent(r.noise_image)}" class="result-image">
+                        <button onclick="downloadImage('/uploads/${encodeURIComponent(r.noise_image)}', '${r.noise_image}')">📥 Download</button>
+                    </div>`;
+            }
 
-          if (r.copy_move_result) {
-            html += `
-              <div class="result-item">
-                <h3>🔄 Copy-Move Detection</h3>
-                <p>Duplicated regions found.</p>
-                <img src="/uploads/${r.copy_move_result}" class="result-image">
-                <button onclick="downloadImage('/uploads/${r.copy_move_result}', '${r.copy_move_result}')">📥 Download</button>
-              </div>`;
-          }
+            if (r.copy_move_result && r.copy_move_image) {
+                html += `
+                    <div class="result-item">
+                        <h3>🔄 Copy-Move Detection</h3>
+                        <p>${r.copy_move_result}</p>
+                        <img src="/uploads/${encodeURIComponent(r.copy_move_image)}" class="result-image">
+                        <button onclick="downloadImage('/uploads/${encodeURIComponent(r.copy_move_image)}', '${r.copy_move_image}')">📥 Download</button>
+                    </div>`;
+            }
 
-          if (r.metadata_result) {
-            html += `
-              <div class="result-item">
-                <h3>📋 Metadata Analysis</h3>
-                <table class="metadata-table">
-                  <thead><tr><th>Property</th><th>Value</th></tr></thead>
-                  <tbody>
-                    ${Object.entries(r.metadata_result).map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('')}
-                  </tbody>
-                </table>
-              </div>`;
-          }
+            if (r.metadata_result) {
+                html += `
+                    <div class="result-item">
+                        <h3>📋 Metadata Analysis</h3>
+                        <table class="metadata-table">
+                            <thead><tr><th>Property</th><th>Value</th></tr></thead>
+                            <tbody>
+                                ${Object.entries(r.metadata_result).map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('')}
+                            </tbody>
+                        </table>
+                    </div>`;
+            }
 
-          if (html === '') {
-            html = `
-              <div class="result-item">
-                <h3>✅ No Tampering Detected</h3>
-                <p>${data.message || 'The image appears authentic based on selected methods.'}</p>
-              </div>`;
-          }
+            if (html === '') {
+                html = `
+                    <div class="result-item">
+                        <h3>✅ No Tampering Detected</h3>
+                        <p>${data.message || 'The image appears authentic based on selected methods.'}</p>
+                    </div>`;
+            }
 
           resultsContent.innerHTML = html;
        }
